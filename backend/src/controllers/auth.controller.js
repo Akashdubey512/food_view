@@ -95,9 +95,9 @@ return res.status(200).json({message:"User logged out successfully"})
 }
 
 async function foodPartnerRegister(req,res){
-const {fullName,email,password}=req.body;
+const {fullName,email,password,bussinessName,phoneNumber,address}=req.body;
 if (
-    [fullName, email, password].some(
+    [fullName, email, password, bussinessName, phoneNumber, address].some(
         (field) => !field?.trim()
     )
 ) {
@@ -108,13 +108,18 @@ if(isFoodPartnerExist){
     return res.status(400).json({message:"Food partner already exist"})
 }
 
+
 const hashPassword=await bcrypt.hash(password,10);
 
 const newFoodPartner=await FoodPartnerModel.create({
     fullName:fullName.trim(),
     email:email.toLowerCase().trim(),
-    password:hashPassword
+    password:hashPassword,
+    bussinessName:bussinessName.trim(),
+    phoneNumber:phoneNumber.trim(),
+    address:address.trim()
 });
+
 
 const token=jwt.sign(
     {
@@ -133,7 +138,10 @@ return res.status(201).json(
         foodPartner:{
             _id:newFoodPartner._id,
             fullName:newFoodPartner.fullName,
-            email:newFoodPartner.email
+            email:newFoodPartner.email,
+            bussinessName:newFoodPartner.bussinessName,
+            phoneNumber:newFoodPartner.phoneNumber,
+            address:newFoodPartner.address
         }
     }
 )
@@ -174,7 +182,10 @@ return res.status(200).json(
         foodPartner:{
             _id:foodPartner._id,
             fullName:foodPartner.fullName,
-            email:foodPartner.email
+            email:foodPartner.email,
+            bussinessName:foodPartner.bussinessName,
+            phoneNumber:foodPartner.phoneNumber,
+            address:foodPartner.address
         }
     }
 )

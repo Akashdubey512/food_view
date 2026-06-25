@@ -6,16 +6,16 @@ function BrandMark() {
     <div className="auth-brand">
       <span className="auth-logo" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-          <path d="M7 3v7" />
-          <path d="M12 3v6" />
-          <path d="M17 3v8" />
-          <path d="M4 11h16" />
-          <path d="M6 11v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8" />
+          <path d="M6 12c0-3.5 2.8-6.3 6.3-6.3 1.7 0 3.2.6 4.4 1.6" />
+          <path d="M7.5 12c0 2.8 2.2 5 5 5s5-2.2 5-5" />
+          <path d="M8.5 8.5c.8-.7 1.7-1.1 2.7-1.1 1.1 0 2 .4 2.8 1.1" />
+          <path d="M9 15.5c1.7 1.2 3.8 1.2 5.5 0" />
+          <path d="M10.5 7.5c.6-.8 1.6-1.2 2.5-1.2" />
         </svg>
       </span>
       <div>
         <p className="auth-brand__name">Food View</p>
-        <p className="auth-brand__meta">Fresh everyday</p>
+        <p className="auth-brand__meta">Fresh delights daily</p>
       </div>
     </div>
   )
@@ -28,7 +28,7 @@ function AuthHeroPanel({ title, subtitle, metrics = [] }) {
       <BrandMark />
 
       <div className="auth-hero__content">
-        <span className="auth-hero__eyebrow">Premium food discovery</span>
+        <span className="auth-hero__eyebrow">Fresh food discovery</span>
         <h2>{title}</h2>
         <p>{subtitle}</p>
       </div>

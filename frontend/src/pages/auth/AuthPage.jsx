@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { AuthField, AuthFormCard, AuthHeroPanel, LockIcon, MailIcon, PasswordField, UserIcon } from '../components/auth/AuthComponents'
-import useAuthFlow from '../context/useAuthFlow'
+import { AuthField, AuthFormCard, AuthHeroPanel, LockIcon, MailIcon, PasswordField, UserIcon } from '../../components/auth/AuthComponents'
+import useAuthFlow from '../../context/useAuthFlow'
 
 function resolveFieldIcon(fieldId) {
   if (fieldId === 'email') return 'email'
@@ -102,13 +102,11 @@ const formCopy = {
   },
 }
 
-function AuthPage({ variant = 'userLogin' }) {
+function AuthPage({ variant = 'userLogin' ,onSubmit}) {
   const page = formCopy[variant] || formCopy.userLogin
   const { formData, updateFieldValue } = useAuthFlow()
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-  }
+  
 
   return (
     <main className="auth-shell">
@@ -132,7 +130,7 @@ function AuthPage({ variant = 'userLogin' }) {
 
         <AuthFormCard
           actionLabel={page.action}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           subtitle={page.subtitle}
           switchLabel={page.switchLabel}
           switchText={page.switchText}
@@ -143,7 +141,6 @@ function AuthPage({ variant = 'userLogin' }) {
             const sharedProps = {
               autoComplete: field.autoComplete,
               fieldId: field.id,
-              key: field.id,
               label: field.label,
               onChange: (event) => updateFieldValue(field.id, event.target.value),
               placeholder: field.placeholder,
@@ -152,12 +149,17 @@ function AuthPage({ variant = 'userLogin' }) {
             }
 
             if (field.type === 'password') {
-              return <PasswordField {...sharedProps} />
+              return <PasswordField 
+               key={field.id}
+              {...sharedProps} />
             }
 
             const Icon = resolveFieldIcon(field.id)
 
-            return <AuthField {...sharedProps} icon={iconMap[Icon]} />
+            return <AuthField 
+            key={field.id}
+            {...sharedProps}
+            icon={iconMap[Icon]} />
           })}
         </AuthFormCard>
       </section>
@@ -166,3 +168,4 @@ function AuthPage({ variant = 'userLogin' }) {
 }
 
 export default AuthPage
+ 

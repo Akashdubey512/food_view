@@ -17,7 +17,7 @@ const videos = [
   },
   {
     id: 2,
-    videoUrl: "https://res.cloudinary.com/duoqjugir/video/upload/v1782536150/food_view/qqb7jpbmaunpuilyimti.mp4",
+    videoUrl: "https://www.w3schools.com/html/movie.mp4",
     badge: "⭐ Bestseller",
     storeName: "Green Harvest",
     tagline: "Healthy Salads",
@@ -46,44 +46,52 @@ const videos = [
 const Home = () => {
   return (
     <div className="reels-container">
-      {videos.map((video) => (
-        <div className="reel-slide" key={video.id}>
-          <video
-            className="reel-video"
-            src={video.videoUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-          />
+      {videos.map((video) => {
+        const metaItems = [
+          `⭐ ${video.rating}`,
+          `⏱ ${video.deliveryTime}`,
+          `🚚 ${video.deliveryFee}`,
+        ];
 
-          <div className="status-badge">{video.badge}</div>
+        return (
+          <div className="reel-slide" key={video.id}>
+            <video
+              className="reel-video"
+              src={video.videoUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
 
-          <div className="reel-overlay">
-            <div className="content-panel">
-              <h3 className="store-name">{video.storeName}</h3>
-              <p className="store-tagline">{video.tagline}</p>
+            <div className="status-badge">{video.badge}</div>
 
-              <div className="store-meta">
-                <span>⭐ {video.rating}</span>
-                <span>•</span>
-                <span>⏱ {video.deliveryTime}</span>
-                <span>•</span>
-                <span>🚚 {video.deliveryFee}</span>
+            <div className="reel-overlay">
+              <div className="content-panel">
+                <h3 className="store-name">{video.storeName}</h3>
+                <p className="store-tagline">{video.tagline}</p>
+
+                <div className="store-meta">
+                  {metaItems.map((item, index) => (
+                    <span className="meta-item" key={index}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+
+                <p className="reel-description">{video.description}</p>
+
+                <button
+                  className="visit-store-btn"
+                  onClick={() => (window.location.href = video.storeLink)}
+                >
+                  Visit Store
+                </button>
               </div>
-
-              <p className="reel-description">{video.description}</p>
-
-              <button
-                className="visit-store-btn"
-                onClick={() => (window.location.href = video.storeLink)}
-              >
-                Explore Store
-              </button>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

@@ -25,8 +25,12 @@ const foodPartnerSchema=new mongoose.Schema({
     password:{
         type:String,
         required:true
+    },
+    customerServed:{
+        type:Number,
+        default:0
     }
-    
+
 },{timestamps:true})
 
 const foodPartnerModel=mongoose.model("FoodPartner",foodPartnerSchema);

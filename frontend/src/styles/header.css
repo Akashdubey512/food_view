@@ -1,0 +1,133 @@
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 56px;
+  padding: 0 1.25rem;
+  margin: 0;
+  background: var(--color-surface);
+  border-bottom: 1px solid rgba(47, 79, 54, 0.12);
+  box-shadow: 0 18px 40px rgba(25, 43, 32, 0.08);
+  backdrop-filter: blur(16px);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+}
+
+.app-header__logo {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  background: rgba(47, 79, 54, 0.05);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.app-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.app-button__icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.55rem;
+}
+
+.app-button--primary {
+  color: var(--color-primary-text);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  box-shadow: 0 14px 26px rgba(47, 79, 54, 0.14);
+}
+
+.app-button--secondary {
+  color: var(--color-text);
+  background: rgba(47, 79, 54, 0.08);
+  border-color: rgba(47, 79, 54, 0.16);
+}
+
+.app-button:hover,
+.app-button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.app-button:focus-visible {
+  outline: 3px solid rgba(134, 185, 150, 0.5);
+  outline-offset: 2px;
+}
+
+.app-header__actions a,
+.app-header__actions button {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+@media (max-width: 720px) {
+  .app-header {
+    padding: 0 0.9rem;
+  }
+
+  .app-header__logo {
+    padding: 0.55rem 0.85rem;
+    font-size: 0.95rem;
+  }
+
+  .app-button {
+    min-height: 38px;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    padding: 0 0.75rem;
+  }
+
+  .app-header__actions {
+    gap: 0.5rem;
+  }
+
+  .app-header__logo {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .app-button {
+    min-height: 36px;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .app-button__icon {
+    width: 0.9rem;
+    height: 0.9rem;
+    margin-right: 0.4rem;
+  }
+}

@@ -28,22 +28,26 @@ const newUser=await Usermodel.create({
 const token=jwt.sign(
     {
         id:newUser._id,
+        role: 'user'
     },
    process.env.JWT_SECRET
 )
 
-res.cookie("token",token,{
-    httpOnly:true,
-    secure:true
-})
+res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
+  })
 return res.status(201)
 .json(
 {
     message:"User registered successfully",
-    user:{
-    _id:newUser._id,
-    fullName:newUser.fullName,
-    email:newUser.email
+    account:{
+      _id:newUser._id,
+      role: 'user',
+      fullName:newUser.fullName,
+      email:newUser.email
     }
 }
 )
@@ -65,17 +69,20 @@ const isPasswordMatch=await bcrypt.compare(password,user.password);
 if(!isPasswordMatch){
     return res.status(400).json({message:"Invalid email or password"})
 }
-const token=jwt.sign({id:user._id},process.env.JWT_SECRET);
-res.cookie("token",token,{
-    httpOnly:true,
-    secure:true
-})
+const token=jwt.sign({id:user._id, role: 'user'}, process.env.JWT_SECRET);
+res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none',
+    path: '/',
+  })
 
 return res.status(200).json(
     {
         message:"User logged in successfully",
-        user:{
+        account:{
             _id:user._id,
+            role: 'user',
             fullName:user.fullName,
             email:user.email
         }
@@ -86,11 +93,7 @@ return res.status(200).json(
 
 
 async function logoutUser(req,res){
-const token=req.cookies.token;
-if(!token){
-    return res.status(400).json({message:"User not logged in"})
-}
-res.clearCookie("token");
+res.clearCookie("token", { path: '/', sameSite: 'none' });
 return res.status(200).json({message:"User logged out successfully"})
 }
 
@@ -124,19 +127,23 @@ const newFoodPartner=await FoodPartnerModel.create({
 const token=jwt.sign(
     {
         id:newFoodPartner._id,
+        role: 'foodPartner'
     },
    process.env.JWT_SECRET
 )
 
-res.cookie("token",token,{
-    httpOnly:true,
-    secure:true
-})
+res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none',
+    path: '/',
+  })
 return res.status(201).json(
     {
         message:"Food partner registered successfully",
-        foodPartner:{
+        account:{
             _id:newFoodPartner._id,
+            role: 'foodPartner',
             fullName:newFoodPartner.fullName,
             email:newFoodPartner.email,
             bussinessName:newFoodPartner.bussinessName,
@@ -168,19 +175,23 @@ if(!isPasswordMatch){
 const token=jwt.sign(
     {
         id:foodPartner._id,
+        role: 'foodPartner'
     },
    process.env.JWT_SECRET
 )
 
-res.cookie("token",token,{
-    httpOnly:true,
-    secure:true
-})
+res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none',
+    path: '/',
+  })
 return res.status(200).json(
     {
         message:"Food partner logged in successfully",
-        foodPartner:{
+        account:{
             _id:foodPartner._id,
+            role: 'foodPartner',
             fullName:foodPartner.fullName,
             email:foodPartner.email,
             bussinessName:foodPartner.bussinessName,
@@ -192,11 +203,7 @@ return res.status(200).json(
 }
 
 async function foodPartnerLogout(req,res){
-const token=req.cookies.token;
-if(!token){
-    return res.status(400).json({message:"Food partner not logged in"})
-}
-res.clearCookie("token");
+res.clearCookie("token", { path: '/', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' });
 return res.status(200).json({message:"Food partner logged out successfully"})
 }
 

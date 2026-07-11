@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { AuthField, AuthFormCard, AuthHeroPanel, LockIcon, MailIcon, PasswordField, UserIcon } from '../../components/auth/AuthComponents'
 import useAuthFlow from '../../context/useAuthFlow'
+import { AuthFlowProvider } from '../../context/AuthFlowContext.jsx'
 
 function resolveFieldIcon(fieldId) {
   if (fieldId === 'email') return 'email'
@@ -102,11 +103,18 @@ const formCopy = {
   },
 }
 
-function AuthPage({ variant = 'userLogin' ,onSubmit}) {
+function AuthPage({ variant = 'userLogin', onSubmit }) {
   const page = formCopy[variant] || formCopy.userLogin
-  const { formData, updateFieldValue } = useAuthFlow()
 
-  
+  return (
+    <AuthFlowProvider>
+      <AuthPageContent page={page} onSubmit={onSubmit} />
+    </AuthFlowProvider>
+  )
+}
+
+function AuthPageContent({ page, onSubmit }) {
+  const { formData, updateFieldValue } = useAuthFlow()
 
   return (
     <main className="auth-shell">
@@ -149,17 +157,16 @@ function AuthPage({ variant = 'userLogin' ,onSubmit}) {
             }
 
             if (field.type === 'password') {
-              return <PasswordField 
-               key={field.id}
-              {...sharedProps} />
+              return (
+                <PasswordField key={field.id} {...sharedProps} />
+              )
             }
 
             const Icon = resolveFieldIcon(field.id)
 
-            return <AuthField 
-            key={field.id}
-            {...sharedProps}
-            icon={iconMap[Icon]} />
+            return (
+              <AuthField key={field.id} {...sharedProps} icon={iconMap[Icon]} />
+            )
           })}
         </AuthFormCard>
       </section>

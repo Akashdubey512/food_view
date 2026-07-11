@@ -1,0 +1,218 @@
+.error-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top, rgba(134, 198, 157, .08), transparent 45%),
+        #171d14;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.error-card {
+
+    width: min(500px, 100%);
+
+    background: rgba(255,255,255,.05);
+
+    backdrop-filter: blur(20px);
+
+    border: 1px solid rgba(255,255,255,.08);
+
+    border-radius: 30px;
+
+    padding: 50px 40px;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.35);
+
+}
+
+.error-icon{
+
+    width:95px;
+    height:95px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(134,198,157,.15);
+
+    color:#86c69d;
+
+    margin-bottom:28px;
+
+    animation: float 3s ease-in-out infinite;
+
+}
+
+.error-badge{
+
+    display:inline-block;
+
+    padding:8px 18px;
+
+    border-radius:999px;
+
+    background:rgba(134,198,157,.12);
+
+    color:#9dd8af;
+
+    letter-spacing:2px;
+
+    font-size:.75rem;
+
+    font-weight:700;
+
+    margin-bottom:20px;
+
+}
+
+.error-card h1{
+
+    font-size:3rem;
+
+    color:white;
+
+    margin-bottom:10px;
+
+}
+
+.error-card h2{
+
+    color:#d6ded3;
+
+    font-weight:500;
+
+    margin-bottom:22px;
+
+}
+
+.error-card p{
+
+    color:#aeb8aa;
+
+    line-height:1.8;
+
+    font-size:1rem;
+
+}
+
+.error-actions{
+
+    margin-top:40px;
+
+    display:flex;
+
+    gap:16px;
+
+    justify-content:center;
+
+    flex-wrap:wrap;
+
+}
+
+.primary-btn,
+.secondary-btn{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:15px 26px;
+
+    border-radius:16px;
+
+    font-weight:600;
+
+    transition:.25s;
+
+    text-decoration:none;
+
+    cursor:pointer;
+
+}
+
+.primary-btn{
+
+    background:#86c69d;
+
+    color:#172116;
+
+}
+
+.primary-btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 12px 30px rgba(134,198,157,.25);
+
+}
+
+.secondary-btn{
+
+    background:rgba(255,255,255,.06);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:white;
+
+}
+
+.secondary-btn:hover{
+
+    background:rgba(255,255,255,.10);
+
+}
+
+@keyframes float{
+
+    0%,100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-10px);
+    }
+
+}
+
+@media(max-width:600px){
+
+    .error-card{
+
+        padding:40px 25px;
+
+    }
+
+    .error-card h1{
+
+        font-size:2.4rem;
+
+    }
+
+    .error-actions{
+
+        flex-direction:column;
+
+    }
+
+    .primary-btn,
+    .secondary-btn{
+
+        width:100%;
+        justify-content:center;
+
+    }
+
+}

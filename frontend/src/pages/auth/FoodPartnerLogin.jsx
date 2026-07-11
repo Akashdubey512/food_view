@@ -1,36 +1,33 @@
 import AuthPage from './AuthPage'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-
+import { useAuth } from '../../context/AuthContext.jsx'
 
 function FoodPartnerLogin() {
+  const navigate = useNavigate()
+  const { login } = useAuth()
 
-  const navigate = useNavigate();
+  const handlePartnerLogin = async (e) => {
+    e.preventDefault()
+    const email = e.target.email.value
+    const password = e.target.password.value
 
-const handlePartnerLogin = async(e)=>{
-    e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+    const response = await axios.post(
+      'http://localhost:3000/api/v1/auth/food-partner/login',
+      {
+        email,
+        password,
+      },
+      {
+        withCredentials: true,
+      }
+    )
 
-      const response =await axios.post(
-        "http://localhost:3000/api/v1/auth/food-partner/login",
-        {
-          email,
-          password
-        },
-        {
-          withCredentials:true
-        }
-      );
+    login(response.data.account)
+    navigate('/create-food')
+  }
 
-
-      console.log(response.data);
-      navigate('/create-food');
-
- }
-
-
-  return <AuthPage variant="partnerLogin" onSubmit={handlePartnerLogin}/>
+  return <AuthPage variant="partnerLogin" onSubmit={handlePartnerLogin} />
 }
 
 export default FoodPartnerLogin

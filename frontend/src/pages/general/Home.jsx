@@ -1,97 +1,103 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../../styles/Home.css";
-
-const videos = [
-  {
-    id: 1,
-    videoUrl: "https://res.cloudinary.com/duoqjugir/video/upload/v1782536150/food_view/qqb7jpbmaunpuilyimti.mp4",
-    badge: "🔥 Trending",
-    storeName: "Fresh Basket",
-    tagline: "Fresh & Organic",
-    rating: "4.8",
-    deliveryTime: "20–25 min",
-    deliveryFee: "Free Delivery",
-    description:
-      "Fresh groceries delivered to your doorstep with the best quality and amazing prices.",
-    storeLink: "/store/1",
-  },
-  {
-    id: 2,
-    videoUrl: "https://www.w3schools.com/html/movie.mp4",
-    badge: "⭐ Bestseller",
-    storeName: "Green Harvest",
-    tagline: "Healthy Salads",
-    rating: "4.7",
-    deliveryTime: "18–22 min",
-    deliveryFee: "\$1.5 Delivery",
-    description:
-      "Discover organic fruits and vegetables directly from trusted local sellers near you.",
-    storeLink: "/store/2",
-  },
-  {
-    id: 3,
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    badge: "🥬 Healthy Choice",
-    storeName: "Snack Point",
-    tagline: "Vegetarian",
-    rating: "4.9",
-    deliveryTime: "15–20 min",
-    deliveryFee: "\$2 Delivery",
-    description:
-      "Order snacks, drinks, and daily essentials from your favorite nearby store in minutes.",
-    storeLink: "/store/3",
-  },
-];
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const [videos, setVideos] = useState([]);
+
+  const containerRef = useRef(null);
+  const videoRefs = useRef([]);
+  const navigate = useNavigate();
+
+  // Fetch videos
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/api/v1/food", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setVideos(response.data.foodItems || []);
+      })
+      .catch((err) => {
+        console.error("Error fetching videos:", err.message);
+       navigate("/user/login")
+      });
+  }, []);
+
+  // Play only the active reel
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (!container || videos.length === 0) return;
+
+    const playCurrentVideo = () => {
+      const viewportCenter = window.innerHeight / 2;
+
+      let activeIndex = 0;
+      let minDistance = Infinity;
+
+      videoRefs.current.forEach((video, index) => {
+        if (!video) return;
+
+        const rect = video.getBoundingClientRect();
+        const videoCenter = rect.top + rect.height / 2;
+        const distance = Math.abs(viewportCenter - videoCenter);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          activeIndex = index;
+        }
+      });
+
+      videoRefs.current.forEach((video, index) => {
+        if (!video) return;
+
+        if (index === activeIndex) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+          video.currentTime = 0; // remove this line if you want paused videos to resume instead of restarting
+        }
+      });
+    };
+
+    playCurrentVideo();
+
+    container.addEventListener("scroll", playCurrentVideo);
+
+    return () => {
+      container.removeEventListener("scroll", playCurrentVideo);
+    };
+  }, [videos]);
+
   return (
-    <div className="reels-container">
-      {videos.map((video) => {
-        const metaItems = [
-          `⭐ ${video.rating}`,
-          `⏱ ${video.deliveryTime}`,
-          `🚚 ${video.deliveryFee}`,
-        ];
+    <div className="reels-container" ref={containerRef}>
+      {videos.map((video, index) => (
+        <section className="reel-slide" key={video._id}>
+          <video
+            ref={(el) => (videoRefs.current[index] = el)}
+            className="reel-video"
+            src={video.video}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+          />
 
-        return (
-          <div className="reel-slide" key={video.id}>
-            <video
-              className="reel-video"
-              src={video.videoUrl}
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
+          <div className="reel-overlay">
+            <p className="reel-description">{video.description}</p>
 
-            <div className="status-badge">{video.badge}</div>
-
-            <div className="reel-overlay">
-              <div className="content-panel">
-                <h3 className="store-name">{video.storeName}</h3>
-                <p className="store-tagline">{video.tagline}</p>
-
-                <div className="store-meta">
-                  {metaItems.map((item, index) => (
-                    <span className="meta-item" key={index}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
-
-                <p className="reel-description">{video.description}</p>
-
-                <button
-                  className="visit-store-btn"
-                  onClick={() => (window.location.href = video.storeLink)}
-                >
-                  Visit Store
-                </button>
-              </div>
-            </div>
+            <Link
+              to={`/foodpartner/${video.foodPartner}`}
+              className="visit-store-btn"
+            >
+              Visit Store
+            </Link>
           </div>
-        );
-      })}
+        </section>
+      ))}
     </div>
   );
 };

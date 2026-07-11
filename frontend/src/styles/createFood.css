@@ -1,0 +1,109 @@
+.create-food-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background: radial-gradient(circle at top left, rgba(122, 187, 99, 0.14), transparent 30%),
+    linear-gradient(180deg, #f8fbf6 0%, #eef7eb 100%);
+}
+
+.create-food-card {
+  width: min(100%, 520px);
+  background: white;
+  border: 1px solid rgba(23, 41, 23, 0.08);
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: 0 20px 54px rgba(72, 101, 74, 0.12);
+}
+
+.create-food-card h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.8rem, 2vw, 2.4rem);
+  color: #204923;
+}
+
+.create-food-card p {
+  margin: 0 0 1.8rem;
+  color: #5b6d5d;
+  line-height: 1.6;
+}
+
+.create-food-form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.create-food-form label {
+  display: grid;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #2f4c32;
+}
+
+.create-food-form input[type="text"],
+.create-food-form textarea,
+.create-food-form input[type="file"] {
+  width: 100%;
+  font: inherit;
+  border: 1px solid rgba(72, 101, 74, 0.2);
+  border-radius: 16px;
+  padding: 0.95rem 1rem;
+  background: #fdfdf7;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+    color: #2f4c32;
+}
+
+.create-food-form input[type="text"]:focus,
+.create-food-form textarea:focus,
+.create-food-form input[type="file"]:focus {
+  outline: none;
+  border-color: #75a869;
+  box-shadow: 0 0 0 4px rgba(123, 178, 108, 0.12);
+}
+
+.create-food-form textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.form-message {
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.form-message--error {
+  background: #ffe8e8;
+  color: #9d2a2a;
+  border: 1px solid #f3c1c1;
+}
+
+.form-message--success {
+  background: #e9f9e9;
+  color: #266f2f;
+  border: 1px solid #b8e1b5;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 1rem 1.1rem;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4e9939, #2f6535);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.submit-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

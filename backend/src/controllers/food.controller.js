@@ -1,5 +1,6 @@
 const foodModel = require('../models/food.model');
 const LikeModel = require('../models/like.model');
+const saveFoodModel = require('../models/saveFood.model');
 const uploadOnCloudinary = require('../utils/cloudinary').uploadOnCloudinary;
 const { v4:uuid} = require('uuid');
 const { isValidObjectId } = require('mongoose');
@@ -80,7 +81,8 @@ async function likeFood(req,res){
             return res.status(200)
             .json(
                 { message: "You have removed your like",
-                    food: updatedFood
+                    food: updatedFood,
+                    likedStatus: false
                  }
             );
     }
@@ -102,16 +104,108 @@ async function likeFood(req,res){
         )
         return res.status(200).json({
             message: "Food liked successfully",
-            food: updatedFood
+            food: updatedFood,
+            likedStatus: true
         });
     } catch (error) {
-        console.log(error);
         return res.status(500).json("Internal server error");
+    }
+}
+
+async function saveFood(req,res){
+try{
+    const { foodId } = req.body;
+
+    if(!isValidObjectId(foodId)){
+        return res.status(400).json({
+            message: "Invalid food"
+        });
+    }
+    
+    const food = await foodModel.findById(foodId);
+        if (!food) {
+            return res.status(404).json({ message: "Food not found" });
+        }
+
+
+    const isSaved = await saveFoodModel.findOne({
+        food: foodId,
+        user: req.user._id
+    });
+    if(isSaved){
+        await isSaved.deleteOne();
+        const updatedFood = await foodModel.findByIdAndUpdate(
+            {
+               foodId
+            },
+            {
+                $inc:{
+                    saveCount: -1
+                }
+            },
+            {
+                new:true
+            }
+        )
+        return res.status(200).json({
+            message: "Food removed from saves",
+            food: updatedFood,
+            savedStatus: false
+        });
+    }
+
+    await saveFoodModel.create({
+        user: req.user._id,
+        food: foodId
+    });
+    const updatedFood = await foodModel.findByIdAndUpdate(
+        {
+          foodId
+        },
+        {
+            $inc: {
+                saveCount: 1
+            }
+        },
+        {
+            new:true
+        }
+    )
+    return res.status(200).json({
+        message: "Food saved successfully",
+        food: updatedFood,
+        savedStatus: true
+    });
+}catch(err){
+    return res.status(500).json({
+        message: "Internal server error"
+    });
+}
+}
+
+async function getSavedFood(req,res){
+    try{
+        const savedFood = await saveFoodModel.find({
+            user:req.user?._id
+        }).sort({createdAt:-1})
+        .populate('food');
+
+        return res.status(200).json({
+            message: "Saved food retrieved successfully",
+            savedFood: savedFood
+        })
+
+    }catch(err){
+         return res.status(500).json({
+            message: "Internal server error"
+        });
     }
 }
 
 module.exports = {
     createFood,
     getFoodItems,
-    likeFood
+    likeFood,
+    saveFood,
+    getSavedFood
 }

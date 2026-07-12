@@ -23,4 +23,6 @@ LikeSchema.index(
     }
 );
 
-module.exports = mongoose.model('Like',LikeSchema);
+const likeModel  = mongoose.model('Like',LikeSchema);
+
+module.exports = likeModel;

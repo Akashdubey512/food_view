@@ -20,7 +20,12 @@ const foodSchema = new mongoose.Schema({
     likesCount:{
         type:Number,
         default:0
+    },
+    saveCount:{
+        type:Number,
+        default:0
     }
+
 },{timestamps:true})
 
 const foodModel = mongoose.model("food",foodSchema);

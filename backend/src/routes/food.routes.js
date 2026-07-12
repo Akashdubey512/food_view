@@ -20,6 +20,22 @@ router.get(
     foodController.getFoodItems
 )
 
+router.post(
+    '/like',
+    authMiddleware.authUserMiddleware,
+    foodController.likeFood
+)
 
+router.post(
+    '/save',
+    authMiddleware.authUserMiddleware,
+    foodController.saveFood
+)
+
+router.get(
+    '/saved',
+    authMiddleware.authUserMiddleware,
+    foodController.getSavedFood
+)
 
 module.exports = router;

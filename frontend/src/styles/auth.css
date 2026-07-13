@@ -13,6 +13,45 @@
   display: grid;
   justify-items: center;
   gap: 20px;
+  touch-action: pan-y;
+}
+
+.auth-shell--slide-left {
+  animation: slideLeft 320ms ease both;
+}
+
+.auth-shell--slide-right {
+  animation: slideRight 320ms ease both;
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(-18px);
+    opacity: 0.92;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  30% {
+    transform: translateX(18px);
+    opacity: 0.92;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .auth-nav {
@@ -27,6 +66,7 @@
   background: color-mix(in srgb, var(--color-surface) 95%, transparent);
   box-shadow: 0 16px 40px rgba(7, 12, 10, 0.14);
   backdrop-filter: blur(16px);
+  touch-action: pan-y;
 }
 
 .auth-nav__link {
@@ -56,12 +96,28 @@
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   overflow: hidden;
+  touch-action: pan-y;
   border: 1px solid color-mix(in srgb, var(--color-border) 75%, transparent);
   border-radius: 32px;
   background: color-mix(in srgb, var(--color-surface) 95%, transparent);
   box-shadow: 0 34px 84px rgba(7, 12, 10, 0.2);
   backdrop-filter: blur(18px);
   transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.auth-nav {
+  width: min(100%, 1120px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 75%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface) 95%, transparent);
+  box-shadow: 0 16px 40px rgba(7, 12, 10, 0.14);
+  backdrop-filter: blur(16px);
+  touch-action: pan-y;
 }
 
 .auth-hero {
@@ -483,6 +539,7 @@
   .auth-shell {
     align-items: stretch;
     padding: 0;
+    touch-action: pan-y;
   }
 
   .auth-panel {

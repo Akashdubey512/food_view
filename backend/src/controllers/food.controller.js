@@ -35,9 +35,17 @@ async function createFood(req,res){
 async function getFoodItems(req,res){
     try{
         const foodItems = await foodModel.find({})   
+        const likedItems = await LikeModel.find({ user: req.user._id }).select('food');
+        const likedFoodIds = new Set(likedItems.map((like) => like.food.toString()));
+
+        const foodItemsWithLike = foodItems.map((item) => ({
+            ...item.toObject(),
+            isLiked: likedFoodIds.has(item._id.toString()),
+        }));
+
         return res.status(200).json({
             message: "Food items retrieved successfully",
-            foodItems : foodItems
+            foodItems : foodItemsWithLike
         });
     }
     catch(err){
@@ -64,28 +72,18 @@ async function likeFood(req,res){
             food: foodId
         });
         if (existingLike) {
-
             await existingLike.deleteOne();
 
             const updatedFood = await foodModel.findByIdAndUpdate(
-                foodId,{
-                    $inc:{
-                        likesCount: -1
-                    }
-                },
-            {
-                new: true
-            }
+                foodId,{ $inc:{ likesCount: -1 } },{ returnDocument: 'after' }
             );
 
-            return res.status(200)
-            .json(
-                { message: "You have removed your like",
-                    food: updatedFood,
-                    likedStatus: false
-                 }
-            );
-    }
+            return res.status(200).json({
+                message: "Food unliked successfully",
+                food: updatedFood,
+                likedStatus: false
+            });
+        }
 
         await LikeModel.create({
             user: req.user._id,
@@ -94,13 +92,8 @@ async function likeFood(req,res){
 
         const updatedFood = await foodModel.findByIdAndUpdate(
             foodId,
-            {
-                $inc:{
-                    likesCount: 1
-                }
-            },{
-                new: true
-            }
+            { $inc:{ likesCount: 1 } },
+            { returnDocument: 'after' }
         )
         return res.status(200).json({
             message: "Food liked successfully",
@@ -135,16 +128,14 @@ try{
     if(isSaved){
         await isSaved.deleteOne();
         const updatedFood = await foodModel.findByIdAndUpdate(
-            {
-               foodId
-            },
+            foodId,
             {
                 $inc:{
                     saveCount: -1
                 }
             },
             {
-                new:true
+                returnDocument: 'after'
             }
         )
         return res.status(200).json({
@@ -159,16 +150,14 @@ try{
         food: foodId
     });
     const updatedFood = await foodModel.findByIdAndUpdate(
-        {
-          foodId
-        },
+        foodId,
         {
             $inc: {
                 saveCount: 1
             }
         },
         {
-            new:true
+            returnDocument: 'after'
         }
     )
     return res.status(200).json({

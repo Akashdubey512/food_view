@@ -1,0 +1,114 @@
+@import "../../styles/unified-design-system.css";
+
+.reel-card {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* ====== VIDEO - THE HERO ====== */
+.reel-card__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ====== OVERLAY ====== */
+.reel-card__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.1) 75%,
+    rgba(0, 0, 0, 0.4) 90%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ====== LEFT SIDE CONTENT ====== */
+.reel-card__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 65%;
+  z-index: 5;
+  padding: var(--space-10) var(--space-8); 
+  pointer-events: auto;
+
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 20%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+/* ====== DESCRIPTION ====== */
+.reel-card__description {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+  padding: 0;
+  word-break: break-word;
+  /* display: -webkit-box; */
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.96;
+  max-width: 100%;
+  animation: fadeInUp 600ms var(--ease-out);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 0.96;
+    transform: translateY(0);
+  }
+}
+
+/* ====== MOBILE ====== */
+@media (max-width: 600px) {
+  .reel-card__content {
+    width: 100%;
+    padding: var(--space-8) var(--space-6) calc(var(--nav-height) + var(--space-30));
+  }
+
+  .reel-card__description {
+    font-size: var(--font-size-base);
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+  }
+}
+
+@media (max-width: 400px) {
+  .reel-card__content {
+    padding: var(--space-6) var(--space-5) calc(var(--nav-height) + var(--space-28));
+  }
+
+  .reel-card__description {
+    font-size: var(--font-size-sm);
+    line-clamp: 2; 
+    -webkit-line-clamp: 2;
+    padding-bottom: 20%;
+  }
+}

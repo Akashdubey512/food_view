@@ -66,6 +66,7 @@ async function authUserMiddleware(req, res, next) {
       });
     }
 
+    req.user = user;
     req.account = {
       role: 'user',
       data: user,

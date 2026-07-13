@@ -1,5 +1,6 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { AuthField, AuthFormCard, AuthHeroPanel, LockIcon, MailIcon, PasswordField, UserIcon } from '../../components/auth/AuthComponents'
+import { useEffect, useState } from 'react'
 import useAuthFlow from '../../context/useAuthFlow'
 import { AuthFlowProvider } from '../../context/AuthFlowContext.jsx'
 
@@ -114,26 +115,130 @@ function AuthPage({ variant = 'userLogin', onSubmit }) {
 }
 
 function AuthPageContent({ page, onSubmit }) {
+  const location = useLocation()
+  const navigate = useNavigate()
   const { formData, updateFieldValue } = useAuthFlow()
+  const [startPoint, setStartPoint] = useState(null)
+  const [slideDirection, setSlideDirection] = useState(null)
+
+  const authRoutes = ['/user/login', '/user/register', '/foodpartner/login', '/foodpartner/register']
+  const currentIndex = authRoutes.indexOf(location.pathname)
+
+  const navigateTo = (route, direction) => {
+    if (!route) return
+    setSlideDirection(direction)
+    navigate(route)
+  }
+
+  const handlePointerDown = (event) => {
+    setStartPoint({ x: event.clientX, y: event.clientY })
+  }
+
+  const handlePointerUp = (event) => {
+    if (!startPoint) return
+
+    const dx = event.clientX - startPoint.x
+    const dy = event.clientY - startPoint.y
+    setStartPoint(null)
+
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.2) {
+      return
+    }
+
+    if (dx < 0 && currentIndex < authRoutes.length - 1) {
+      navigateTo(authRoutes[currentIndex + 1], 'left')
+    } else if (dx > 0 && currentIndex > 0) {
+      navigateTo(authRoutes[currentIndex - 1], 'right')
+    }
+  }
+
+  const handleTouchStart = (event) => {
+    const touch = event.touches?.[0]
+    if (touch) {
+      setStartPoint({ x: touch.clientX, y: touch.clientY })
+    }
+  }
+
+  const handleTouchMove = (event) => {
+    const touch = event.touches?.[0]
+    if (!touch || !startPoint) return
+
+    const dx = touch.clientX - startPoint.x
+    const dy = touch.clientY - startPoint.y
+    if (Math.abs(dx) > 20 && Math.abs(dx) > Math.abs(dy)) {
+      event.preventDefault()
+    }
+  }
+
+  const handleTouchEnd = (event) => {
+    const touch = event.changedTouches?.[0]
+    if (!touch || !startPoint) return
+
+    const dx = touch.clientX - startPoint.x
+    const dy = touch.clientY - startPoint.y
+    setStartPoint(null)
+
+    if (Math.abs(dx) < 35 || Math.abs(dx) < Math.abs(dy)) {
+      return
+    }
+
+    if (dx < 0 && currentIndex < authRoutes.length - 1) {
+      navigateTo(authRoutes[currentIndex + 1], 'left')
+    } else if (dx > 0 && currentIndex > 0) {
+      navigateTo(authRoutes[currentIndex - 1], 'right')
+    }
+  }
+
+  const handlePointerMove = (event) => {
+    if (!startPoint) return
+    const dx = event.clientX - startPoint.x
+    const dy = event.clientY - startPoint.y
+    if (Math.abs(dx) > 20 && Math.abs(dx) > Math.abs(dy)) {
+      event.preventDefault()
+    }
+  }
+
+  useEffect(() => {
+    if (!slideDirection) return
+    const timeout = window.setTimeout(() => setSlideDirection(null), 280)
+    return () => window.clearTimeout(timeout)
+  }, [slideDirection, location.pathname])
 
   return (
-    <main className="auth-shell">
+    <main
+      className={`auth-shell ${slideDirection ? `auth-shell--slide-${slideDirection}` : ''}`}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={() => setStartPoint(null)}
+      onPointerLeave={() => setStartPoint(null)}
+    >
       <nav className="auth-nav" aria-label="Auth navigation">
-        <NavLink className="auth-nav__link" to="/user/login">
+        <NavLink className={({ isActive }) => `auth-nav__link ${isActive ? 'active' : ''}`} to="/user/login">
           Customer login
         </NavLink>
-        <NavLink className="auth-nav__link" to="/user/register">
+        <NavLink className={({ isActive }) => `auth-nav__link ${isActive ? 'active' : ''}`} to="/user/register">
           Customer register
         </NavLink>
-        <NavLink className="auth-nav__link" to="/foodpartner/login">
+        <NavLink className={({ isActive }) => `auth-nav__link ${isActive ? 'active' : ''}`} to="/foodpartner/login">
           Partner login
         </NavLink>
-        <NavLink className="auth-nav__link" to="/foodpartner/register">
+        <NavLink className={({ isActive }) => `auth-nav__link ${isActive ? 'active' : ''}`} to="/foodpartner/register">
           Partner register
         </NavLink>
       </nav>
 
-      <section className="auth-panel" aria-labelledby="auth-title">
+      <section
+        className="auth-panel"
+        aria-labelledby="auth-title"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={() => setStartPoint(null)}
+      >
         <AuthHeroPanel title={page.heroTitle} subtitle={page.heroSubtitle} metrics={page.heroMetrics} />
 
         <AuthFormCard

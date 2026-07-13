@@ -4,47 +4,35 @@ import axios from "axios";
 import Header from "../../components/Header/Header";
 import Reels from "../../components/Reels/Reels";
 import BottomNav from "../../components/BottomNav/BottomNav";
-import { useAuth } from "../../context/AuthContext.jsx";
 import "../../styles/unified-design-system.css";
 import "./page.css";
 
-const Home = () => {
+const Saved = () => {
   const [reels, setReels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    const fetchReels = async () => {
+    const fetchSavedReels = async () => {
       try {
         setLoading(true);
+        const response = await axios.get("http://localhost:3000/api/v1/food/saved", {
+          withCredentials: true,
+        });
 
-        const [foodResponse, savedResponse] = await Promise.allSettled([
-          axios.get("http://localhost:3000/api/v1/food", {
-            withCredentials: true,
-          }),
-          axios.get("http://localhost:3000/api/v1/food/saved", {
-            withCredentials: true,
-          }),
-        ]);
-
-        const foodItems = foodResponse.status === "fulfilled" ? foodResponse.value.data.foodItems || [] : [];
-        const savedIds = new Set(
-          savedResponse.status === "fulfilled"
-            ? (savedResponse.value.data.savedFood || []).map((saved) => saved.food?._id).filter(Boolean)
-            : []
-        );
-
+        const savedFood = response.data.savedFood || [];
         setReels(
-          foodItems.map((item) => ({
-            ...item,
-            isSaved: savedIds.has(item._id),
-          }))
+          savedFood
+            .map((entry) => ({
+              ...entry.food,
+              isSaved: true,
+            }))
+            .filter(Boolean)
         );
         setError(null);
       } catch (err) {
-        console.error("Error fetching reels:", err.message);
+        console.error("Error fetching saved reels:", err.message);
         setError(err.message);
         if (err.response?.status === 401) {
           navigate("/user/login");
@@ -54,14 +42,20 @@ const Home = () => {
       }
     };
 
-    fetchReels();
-  }, [navigate, isAuthenticated]);
+    fetchSavedReels();
+  }, [navigate]);
+
+  const handleRemoveReel = (reelId) => {
+    setReels((prevReels) =>
+      prevReels.filter((reel) => reel._id !== reelId)
+    );
+  };
 
   if (loading) {
     return (
       <div className="page-state loading-state">
         <div className="spinner" />
-        <p className="state-text">Discovering delicious reels...</p>
+        <p className="state-text">Loading your saved reels...</p>
       </div>
     );
   }
@@ -70,7 +64,7 @@ const Home = () => {
     return (
       <div className="page-state error-state">
         <p className="state-icon">⚠️</p>
-        <p className="state-text">Couldn't load reels</p>
+        <p className="state-text">Couldn't load saved reels</p>
         <p className="state-subtext">{error}</p>
         <button
           className="state-button"
@@ -82,13 +76,25 @@ const Home = () => {
     );
   }
 
+  if (reels.length === 0) {
+    return (
+      <div className="page-state empty-state">
+        <p className="state-icon">🔖</p>
+        <p className="state-text">No saved reels yet</p>
+        <p className="state-subtext">
+          Explore and save your favorite food reels
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <Header />
-      <Reels reels={reels} />
+      <Reels reels={reels} onRemoveReel={handleRemoveReel} />
       <BottomNav />
     </div>
   );
 };
 
-export default Home;
+export default Saved;

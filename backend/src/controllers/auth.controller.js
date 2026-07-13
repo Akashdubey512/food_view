@@ -73,7 +73,7 @@ const token=jwt.sign({id:user._id, role: 'user'}, process.env.JWT_SECRET);
 res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     path: '/',
   })
 
@@ -93,8 +93,12 @@ return res.status(200).json(
 
 
 async function logoutUser(req,res){
-res.clearCookie("token", { path: '/', sameSite: 'none' });
-return res.status(200).json({message:"User logged out successfully"})
+  res.clearCookie("token", {
+    path: '/',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
+  return res.status(200).json({message:"User logged out successfully"})
 }
 
 async function foodPartnerRegister(req,res){
@@ -183,7 +187,7 @@ const token=jwt.sign(
 res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     path: '/',
   })
 return res.status(200).json(

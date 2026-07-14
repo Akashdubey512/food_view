@@ -6,7 +6,7 @@ import "./ReelCard.css";
 const ReelCard = ({ reel, videoRef, onRemoveReel }) => {
   const [isLiked, setIsLiked] = useState(reel?.isLiked || false);
   const [isSaved, setIsSaved] = useState(reel?.isSaved || false);
-  const [likeCount, setLikeCount] = useState(reel?.likeCount || 0);
+  const [likeCount, setLikeCount] = useState(reel?.likesCount || 0);
   const [saveCount, setSaveCount] = useState(reel?.saveCount || 0);
   const [isLiking, setIsLiking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -93,12 +93,18 @@ const ReelCard = ({ reel, videoRef, onRemoveReel }) => {
       {/* Overlay */}
       <div className="reel-card__overlay" />
 
-      {/* Left Side Content - Description Only (No Placeholder) */}
-      <div className="reel-card__content">
-        {/* Only show description if it exists and is not empty */}
-        {reel.description && reel.description.trim() && (
-          <p className="reel-card__description">{reel.description}</p>
-        )}
+      {/* Bottom-left anchored content block */}
+      <div className="reel-card__bottom-content">
+        <div className="reel-card__content">
+          <div className="reel-card__meta">
+            {reel.title && reel.title.trim() ? (
+              <h3 className="reel-card__title">{reel.title}</h3>
+            ) : null}
+            {reel.description && reel.description.trim() && (
+              <p className="reel-card__description">{reel.description}</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Right Side Action Rail */}

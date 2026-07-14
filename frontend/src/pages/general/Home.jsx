@@ -20,29 +20,18 @@ const Home = () => {
       try {
         setLoading(true);
 
-        const [foodResponse, savedResponse] = await Promise.allSettled([
-          axios.get("http://localhost:3000/api/v1/food", {
+        const foodResponse = await axios.get(
+          "http://localhost:3000/api/v1/food",
+          {
             withCredentials: true,
-          }),
-          axios.get("http://localhost:3000/api/v1/food/saved", {
-            withCredentials: true,
-          }),
-        ]);
-
-        const foodItems = foodResponse.status === "fulfilled" ? foodResponse.value.data.foodItems || [] : [];
-        const savedIds = new Set(
-          savedResponse.status === "fulfilled"
-            ? (savedResponse.value.data.savedFood || []).map((saved) => saved.food?._id).filter(Boolean)
-            : []
+          }
         );
 
-        setReels(
-          foodItems.map((item) => ({
-            ...item,
-            isSaved: savedIds.has(item._id),
-          }))
-        );
+        const foodItems = foodResponse.data.foodItems || [];
+
+        setReels(foodItems);
         setError(null);
+        setReels(foodItems);
       } catch (err) {
         console.error("Error fetching reels:", err.message);
         setError(err.message);
@@ -53,7 +42,6 @@ const Home = () => {
         setLoading(false);
       }
     };
-
     fetchReels();
   }, [navigate, isAuthenticated]);
 

@@ -31,26 +31,38 @@ async function createFood(req,res){
         return res.status(500).json(error);
     }
 }
+async function getFoodItems(req, res) {
+    try {
+        const [foodItems, likedFoodIds, savedFoodIds] = await Promise.all([
+            foodModel.find({}).sort({ createdAt: -1 }),
+            LikeModel.find({ user: req.user._id }).distinct("food"),
+            saveFoodModel.find({ user: req.user._id }).distinct("food")
+        ]);
 
-async function getFoodItems(req,res){
-    try{
-        const foodItems = await foodModel.find({})   
-        const likedItems = await LikeModel.find({ user: req.user._id }).select('food');
-        const likedFoodIds = new Set(likedItems.map((like) => like.food.toString()));
+        const likedSet = new Set(
+            likedFoodIds.map(id => id.toString())
+        );
 
-        const foodItemsWithLike = foodItems.map((item) => ({
-            ...item.toObject(),
-            isLiked: likedFoodIds.has(item._id.toString()),
+        const savedSet = new Set(
+            savedFoodIds.map(id => id.toString())
+        );
+
+        const result = foodItems.map(food => ({
+            ...food.toObject(),
+            isLiked: likedSet.has(food._id.toString()),
+            isSaved: savedSet.has(food._id.toString())
         }));
 
         return res.status(200).json({
             message: "Food items retrieved successfully",
-            foodItems : foodItemsWithLike
+            foodItems: result
         });
-    }
-    catch(err){
+
+    } catch (err) {
         console.log(err);
-        return res.status(500).json(err);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
     }
 }
 
@@ -171,21 +183,39 @@ try{
     });
 }
 }
+async function getSavedFood(req, res) {
+    try {
+        const [savedFood, likedFoodIds] = await Promise.all([
+            saveFoodModel.find({
+                user: req.user._id
+            })
+            .sort({ createdAt: -1 })
+            .populate("food"),
 
-async function getSavedFood(req,res){
-    try{
-        const savedFood = await saveFoodModel.find({
-            user:req.user?._id
-        }).sort({createdAt:-1})
-        .populate('food');
+            LikeModel.distinct("food", {
+                user: req.user._id
+            })
+        ]);
+
+        const likedSet = new Set(
+            likedFoodIds.map(id => id.toString())
+        );
+
+        const foodItems = savedFood.map(item => ({
+            ...item.food.toObject(),
+            isSaved: true,
+            isLiked: likedSet.has(item.food._id.toString())
+        }));
 
         return res.status(200).json({
             message: "Saved food retrieved successfully",
-            savedFood: savedFood
-        })
+            foodItems
+        });
 
-    }catch(err){
-         return res.status(500).json({
+    } catch (err) {
+        console.log(err);
+
+        return res.status(500).json({
             message: "Internal server error"
         });
     }

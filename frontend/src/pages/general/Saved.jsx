@@ -21,15 +21,7 @@ const Saved = () => {
           withCredentials: true,
         });
 
-        const savedFood = response.data.savedFood || [];
-        setReels(
-          savedFood
-            .map((entry) => ({
-              ...entry.food,
-              isSaved: true,
-            }))
-            .filter(Boolean)
-        );
+        setReels(response.data.foodItems ?? []);
         setError(null);
       } catch (err) {
         console.error("Error fetching saved reels:", err.message);

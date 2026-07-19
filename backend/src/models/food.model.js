@@ -3,14 +3,22 @@ const mongoose =require('mongoose')
 const foodSchema = new mongoose.Schema({
     name:{
         type:String,
-        required:true
+        required:true,
+        trim:true
     },
     video:{
         type:String,
         required:true
     },
     description:{
-        type: String
+        type: String,
+        required:true,
+        trim:true,
+    },
+    price:{
+        type:Number,
+        required:true,
+        min:0
     },
     foodPartner:{
         type:mongoose.Schema.Types.ObjectId,
@@ -24,6 +32,10 @@ const foodSchema = new mongoose.Schema({
     saveCount:{
         type:Number,
         default:0
+    },
+    isAvailable:{
+        type:Boolean,
+        default:true
     }
 
 },{timestamps:true})

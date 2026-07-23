@@ -69,10 +69,16 @@ const orderSchema = new mongoose.Schema(
 
     paymentId: {
       type: String,
+      default:null
     },
 
     deliveryAddress: {
       type: String,
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["COD", "ONLINE"],
       required: true,
     },
   },
@@ -80,5 +86,11 @@ const orderSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+orderSchema.index({ user: 1 });
+
+orderSchema.index({ foodPartner: 1 });
+
+orderSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Order", orderSchema);

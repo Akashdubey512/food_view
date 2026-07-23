@@ -16,6 +16,15 @@ const Home = () => {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
+    document.documentElement.classList.add("no-scroll");
+    document.body.classList.add("no-scroll");
+    return () => {
+      document.documentElement.classList.remove("no-scroll");
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchReels = async () => {
       try {
         setLoading(true);

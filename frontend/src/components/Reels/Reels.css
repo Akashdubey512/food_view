@@ -2,7 +2,7 @@
 
 .reels-container {
   position: absolute;
-  inset: var(--header-overlay-offset) 0 var(--bottom-nav-overlay-offset);
+  inset: 0;
   width: 100%;
   overflow-y: auto;
   scroll-snap-type: y mandatory;

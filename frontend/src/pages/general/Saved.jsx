@@ -14,6 +14,15 @@ const Saved = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.documentElement.classList.add("no-scroll");
+    document.body.classList.add("no-scroll");
+    return () => {
+      document.documentElement.classList.remove("no-scroll");
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchSavedReels = async () => {
       try {
         setLoading(true);

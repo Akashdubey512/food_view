@@ -68,6 +68,8 @@ async function addToCart(req,res){
                 items: [],
                 totalPrice: 0
             });
+        }else if (!cart.foodPartner) {
+            cart.foodPartner = foodDoc.foodPartner;
         }
         if(cart.foodPartner &&!cart.foodPartner.equals(foodDoc.foodPartner)){
             return res.status(400).json({

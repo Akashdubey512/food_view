@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const orderModel = require('../models/order.model');
 const paymentModel = require('../models/payment.model');
 const cartModel = require('../models/cart.model');
+const foodModel = require('../models/food.model');
 const { isValidObjectId } = mongoose;
 
 // Endpoints for user
@@ -25,19 +26,56 @@ try {
             message:"Cart is empty"
         })
     }
+    const foodIds = cart.items.map(item => item.food);
+
+const foods = await foodModel.find(
+    {
+    _id: { $in: foodIds }
+    },
+    "name isAvailable price"
+);
+
+if (foods.length !== foodIds.length) {
+    return res.status(400).json({
+        message: "Some items in your cart are no longer available."
+    });
+}
+
+const unavailableFood = foods.find(food => !food.isAvailable);
+
+if (unavailableFood) {
+    return res.status(400).json({
+        message: `${unavailableFood.name} is currently unavailable`
+    });
+}
+const foodPriceMap = new Map();
+
+foods.forEach(food => {
+    foodPriceMap.set(food._id.toString(), food.price);
+});
+
+const totalAmount = cart.items.reduce((sum, item) => {
+    const price = foodPriceMap.get(item.food.toString());
+    return sum + price * item.quantity;
+}, 0);
+
+
     const order = await orderModel.create({
         user,
         foodPartner:cart.foodPartner,
         items:cart.items,
-        totalAmount:cart.totalPrice,
+        totalAmount,
         deliveryAddress,
         paymentMethod
     })
-    cart.items = [];
-    cart.totalPrice = 0;
-    cart.foodPartner = null;
+    if(paymentMethod==="COD"){
+        cart.items = [];
+        cart.totalPrice = 0;
+        cart.foodPartner = null;
+        await cart.save();
+    }
 
-    await cart.save();
+    
 
     await order.populate([
         {

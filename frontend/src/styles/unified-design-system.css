@@ -107,27 +107,27 @@
   --floating-surface-blur: blur(8px);
 
   --header-height: 42px;
-  --bottom-nav-height: 44px;
+  --bottom-nav-height: 62px;
   --nav-height: var(--bottom-nav-height);
   --header-overlay-offset: calc(env(safe-area-inset-top, 0px) + var(--space-4) + var(--header-height));
-  --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + var(--space-4) + var(--bottom-nav-height));
+  --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + 18px + var(--bottom-nav-height));
 }
 
 @media (max-width: 600px) {
   :root {
     --header-height: 40px;
-    --bottom-nav-height: 42px;
+    --bottom-nav-height: 58px;
     --header-overlay-offset: calc(env(safe-area-inset-top, 0px) + var(--space-4) + var(--header-height));
-    --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + var(--space-4) + var(--bottom-nav-height));
+    --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + 16px + var(--bottom-nav-height));
   }
 }
 
 @media (max-width: 400px) {
   :root {
     --header-height: 40px;
-    --bottom-nav-height: 42px;
+    --bottom-nav-height: 56px;
     --header-overlay-offset: calc(env(safe-area-inset-top, 0px) + var(--space-4) + var(--header-height));
-    --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + var(--space-4) + var(--bottom-nav-height));
+    --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + 14px + var(--bottom-nav-height));
   }
 }
 

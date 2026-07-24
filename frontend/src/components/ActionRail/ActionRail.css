@@ -1,15 +1,15 @@
 @import "../../styles/unified-design-system.css";
 
+/* ====== RAIL WRAPPER ====== */
 .action-rail {
   position: absolute;
-  right: var(--space-8);
-  top: 46%;
-  transform: translateY(-50%);
+  right: 10px;
+  bottom: calc(var(--bottom-nav-overlay-offset) + 16px);
 
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-16);
+  gap: 6px;
 
   z-index: 20;
   pointer-events: auto;
@@ -18,34 +18,30 @@
 }
 
 @keyframes railFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(calc(-50% + 12px));
-  }
-  to {
-    opacity: 1;
-    transform: translateY(-50%);
-  }
+  from { opacity: 0; transform: translateX(8px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-/* ====== ACTION ITEM ====== */
+/* ====== SINGLE ACTION ITEM ====== */
 .action-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
+  gap: 3px;
 }
 
-/* ====== ACTION BUTTON - UNIFIED ====== */
+/* ====== BASE BUTTON ====== */
 .action-button {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: rgba(20, 20, 20, 0.70);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.08);
 
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-
-  color: var(--color-text-primary);
+  color: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -53,174 +49,140 @@
   flex-shrink: 0;
   padding: 0;
 
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), opacity var(--transition-fast);
-  backdrop-filter: var(--floating-surface-blur);
-  -webkit-backdrop-filter: var(--floating-surface-blur);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-
-  opacity: 0.78;
+  transition: transform 130ms ease, box-shadow 130ms ease, background 130ms ease, border-color 130ms ease;
 }
 
-.action-icon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  transition: all var(--transition-fast);
-}
-
-/* ====== HOVER STATE ====== */
 .action-button:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.18);
-  transform: scale(1.04);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.14);
-  opacity: 0.92;
+  background: rgba(40, 40, 40, 0.85);
+  border-color: rgba(255, 255, 255, 0.38);
+  transform: scale(1.08);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
 }
 
 .action-button:active {
-  transform: scale(0.96);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  transform: scale(0.94);
 }
 
-/* ====== LIKE ACTIVE STATE ====== */
+/* ====== ICON ====== */
+.action-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  transition: transform 130ms ease;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+/* ====== LIKE - ACTIVE ====== */
 .action-button--liked {
-  background: rgba(255, 59, 48, 0.8);
-  border-color: rgba(255, 59, 48, 0.9);
-  color: white;
-  box-shadow: 0 0 10px rgba(255, 59, 48, 0.3);
-  opacity: 1;
+  background: rgba(255, 45, 85, 0.85);
+  border-color: rgba(255, 45, 85, 0.9);
+  box-shadow: 0 0 0 3px rgba(255, 45, 85, 0.22), 0 4px 20px rgba(255, 45, 85, 0.40);
 }
 
 .action-button--liked:hover {
-  background: rgba(255, 59, 48, 0.95);
-  box-shadow: 0 0 14px rgba(255, 59, 48, 0.4);
-  transform: scale(1.08);
+  background: rgba(255, 45, 85, 0.95);
+  transform: scale(1.1);
 }
 
-/* ====== SAVE ACTIVE STATE ====== */
+/* ====== SAVE - ACTIVE ====== */
 .action-button--saved {
-  background: var(--color-glass-medium);
-  border-color: var(--color-text-primary);
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.12);
-  opacity: 1;
+  background: rgba(255, 214, 10, 0.85);
+  border-color: rgba(255, 214, 10, 0.9);
+  color: #1a1200;
+  box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.22), 0 4px 20px rgba(255, 214, 10, 0.35);
 }
 
 .action-button--saved:hover {
-  background: var(--color-glass-strong);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  background: rgba(255, 214, 10, 0.96);
+  transform: scale(1.1);
 }
 
-/* ====== VISIT STORE STATE ====== */
+.action-button--saved .action-icon {
+  filter: none;
+}
+
+/* ====== VISIT / ORDER ====== */
 .action-button--visit,
 .action-button--order {
-  opacity: 0.75;
+  background: rgba(20, 20, 20, 0.60);
 }
 
 .action-button--visit:hover,
 .action-button--order:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 122, 255, 0.75);
+  border-color: rgba(0, 122, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.18), 0 4px 20px rgba(0, 122, 255, 0.35);
 }
 
-/* ====== POP ANIMATION (LIKE) ====== */
+/* ====== POP ANIMATION ====== */
 .action-button--pop {
-  animation: likePop var(--transition-base) var(--ease-out);
+  animation: likePop 220ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 @keyframes likePop {
-  0% {
-    transform: scale(1);
-  }
-  40% {
-    transform: scale(1.12);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.22); }
+  100% { transform: scale(1); }
 }
 
-/* ====== BOOKMARK ANIMATION (SAVE) ====== */
+/* ====== BOOKMARK ANIMATION ====== */
 .action-button--bookmark {
-  animation: bookmarkPulse var(--transition-base) var(--ease-out);
+  animation: bookmarkPulse 220ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 @keyframes bookmarkPulse {
-  0% {
-    transform: scale(1) scaleY(1);
-  }
-  50% {
-    transform: scale(1.08) scaleY(1.08);
-  }
-  100% {
-    transform: scale(1) scaleY(1);
-  }
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
-/* ====== COUNT DISPLAY ====== */
+/* ====== COUNT ====== */
 .action-count {
-  font-size: 10px;
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  min-width: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 22px;
   text-align: center;
-  letter-spacing: var(--letter-spacing-normal);
-  opacity: 0.68;
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  letter-spacing: 0;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  transition: transform 130ms ease;
 }
 
 .action-count--animate {
-  animation: countPulse var(--transition-base) var(--ease-out);
+  animation: countBounce 220ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-@keyframes countPulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.75;
-  }
-  50% {
-    transform: scale(1.12);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.75;
-  }
+@keyframes countBounce {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* ====== MOBILE ====== */
 @media (max-width: 600px) {
   .action-rail {
-    right: var(--space-6);
-    gap: var(--space-10);
+    right: 8px;
+    gap: 4px;
   }
 
   .action-button {
-    width: 44px;
-    height: 44px;
-  }
-
-  .action-icon {
-    width: 21px;
-    height: 21px;
-  }
-
-  .action-count {
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 400px) {
-  .action-rail {
-    right: var(--space-5);
-    gap: var(--space-8);
-  }
-
-  .action-button {
-    width: 42px;
-    height: 42px;
+    width: 46px;
+    height: 46px;
   }
 
   .action-icon {
     width: 20px;
     height: 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .action-rail {
+    right: 6px;
+  }
+
+  .action-button {
+    width: 44px;
+    height: 44px;
   }
 }

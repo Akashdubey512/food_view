@@ -36,6 +36,10 @@ const foodSchema = new mongoose.Schema({
     isAvailable:{
         type:Boolean,
         default:true
+    },
+    thumbnail:{
+        type:String,
+        required:true
     }
 
 },{timestamps:true})

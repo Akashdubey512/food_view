@@ -6,6 +6,7 @@ const foodPartnerRoutes=require('./routes/food-partner.routes')
 const meRoutes=require('./routes/me.routes')
 const cartRoutes=require('./routes/cart.routes')
 const orderRoutes=require('./routes/order.routes')
+const paymentRoutes=require('./routes/payment.routes')
 const cors=require('cors')
 
 const app = express();
@@ -25,5 +26,6 @@ app.use("/api/v1/food",foodRoutes);
 app.use("/api/v1/food-partner", foodPartnerRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/order", orderRoutes);
+app.use("/api/v1/payment", paymentRoutes);
 
 module.exports = app;

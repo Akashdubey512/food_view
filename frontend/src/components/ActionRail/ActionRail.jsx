@@ -19,10 +19,7 @@ const ActionRail = ({
     navigate(`/foodpartner/${foodPartnerId}`);
   };
 
-  const handleOrder = () => {
-    // Placeholder for future order flow
-    console.log("Order initiated for:", foodPartnerId);
-  };
+
 
   return (
     <div className="action-rail" role="group" aria-label="Reel actions">
@@ -108,27 +105,7 @@ const ActionRail = ({
         </button>
       </div>
 
-      {/* ====== ORDER ACTION ====== */}
-      <div className="action-item">
-        <button
-          className="action-button action-button--order"
-          onClick={handleOrder}
-          aria-label="Order"
-          type="button"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="action-icon"
-          >
-            <circle cx="9" cy="21" r="1" />
-            <circle cx="20" cy="21" r="1" />
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-          </svg>
-        </button>
-      </div>
+      
     </div>
   );
 };

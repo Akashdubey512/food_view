@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Header from "../../components/Header/Header";
 import BottomNav from "../../components/BottomNav/BottomNav";
+import { loadRazorpayScript } from "../../utils/loadRazorpay";
 import "../../styles/unified-design-system.css";
 import "./page.css";
 import "./Orders.css";
@@ -19,6 +20,8 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(null);
+  const [payingOrder, setPayingOrder] = useState(null);
+  const [payError, setPayError] = useState("");
 
   useEffect(() => {
     document.documentElement.classList.remove("no-scroll");
@@ -58,6 +61,72 @@ const Orders = () => {
     }
   };
 
+  const handlePayNow = async (order) => {
+    setPayError("");
+    setPayingOrder(order._id);
+    try {
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        setPayError("Razorpay SDK failed to load. Check internet connection.");
+        setPayingOrder(null);
+        return;
+      }
+
+      const payRes = await axios.post(
+        "http://localhost:3000/api/v1/payment/create",
+        { orderId: order._id },
+        { withCredentials: true }
+      );
+
+      const { key, razorpayOrderId, amount, currency } = payRes.data;
+
+      const options = {
+        key: key || import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount,
+        currency,
+        name: "FoodView",
+        description: `Order #${order._id.slice(-6)}`,
+        order_id: razorpayOrderId,
+        handler: async (response) => {
+          try {
+            await axios.post(
+              "http://localhost:3000/api/v1/payment/verify",
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              { withCredentials: true }
+            );
+            await fetchOrders();
+          } catch (vErr) {
+            setPayError(vErr.response?.data?.message || "Payment verification failed.");
+          } finally {
+            setPayingOrder(null);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setPayingOrder(null);
+          },
+        },
+        theme: {
+          color: "#ff3b30",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", function (response) {
+        setPayError(`Payment failed: ${response.error?.description || "Something went wrong"}`);
+        setPayingOrder(null);
+      });
+      rzp.open();
+    } catch (err) {
+      setPayError(err.response?.data?.message || "Failed to initiate payment.");
+      setPayingOrder(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="page-state loading-state">
@@ -73,6 +142,8 @@ const Orders = () => {
       <main className="orders-main">
         <h1 className="orders-heading">Your Orders</h1>
 
+        {payError && <p className="orders-error-toast">{payError}</p>}
+
         {orders.length === 0 ? (
           <div className="orders-empty">
             <div className="orders-empty__icon">📦</div>
@@ -84,23 +155,48 @@ const Orders = () => {
             {orders.map((order) => {
               const statusStyle = STATUS_COLORS[order.orderStatus] || STATUS_COLORS.Pending;
               const canCancel = order.orderStatus === "Pending";
+              const needsPayment =
+                order.paymentMethod === "ONLINE" &&
+                order.paymentStatus !== "Paid" &&
+                order.orderStatus !== "Cancelled";
               const itemCount = order.items?.length || 0;
+
               return (
                 <div key={order._id} className="order-card">
                   <div className="order-card__top">
                     <div className="order-card__partner">
                       {order.foodPartner?.restaurantName || "Restaurant"}
                     </div>
-                    <span
-                      className="order-card__status"
-                      style={{
-                        background: statusStyle.bg,
-                        color: statusStyle.color,
-                        border: `1px solid ${statusStyle.border}`,
-                      }}
-                    >
-                      {order.orderStatus}
-                    </span>
+                    <div className="order-card__badges">
+                      <span
+                        className="order-card__payment-badge"
+                        style={{
+                          background:
+                            order.paymentStatus === "Paid"
+                              ? "rgba(52,199,89,0.15)"
+                              : "rgba(255,149,0,0.15)",
+                          color:
+                            order.paymentStatus === "Paid" ? "#34c759" : "#ff9500",
+                          border: `1px solid ${
+                            order.paymentStatus === "Paid"
+                              ? "rgba(52,199,89,0.3)"
+                              : "rgba(255,149,0,0.3)"
+                          }`,
+                        }}
+                      >
+                        {order.paymentStatus === "Paid" ? "Paid" : "Unpaid"}
+                      </span>
+                      <span
+                        className="order-card__status"
+                        style={{
+                          background: statusStyle.bg,
+                          color: statusStyle.color,
+                          border: `1px solid ${statusStyle.border}`,
+                        }}
+                      >
+                        {order.orderStatus}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="order-card__items">
@@ -127,6 +223,17 @@ const Orders = () => {
                     <div className="order-card__bottom-row">
                       <span className="order-card__total">₹{order.totalAmount}</span>
                       <span className="order-card__method">{order.paymentMethod}</span>
+                      
+                      {needsPayment && (
+                        <button
+                          className="order-card__pay-btn"
+                          onClick={() => handlePayNow(order)}
+                          disabled={payingOrder === order._id}
+                        >
+                          {payingOrder === order._id ? "Opening..." : "Pay Now"}
+                        </button>
+                      )}
+
                       {canCancel && (
                         <button
                           className="order-card__cancel-btn"

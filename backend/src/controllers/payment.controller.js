@@ -3,6 +3,7 @@ const orderModel = require('../models/order.model');
 const paymentModel = require('../models/payment.model');
 const cartModel = require('../models/cart.model');
 const crypto = require("crypto");
+const razorpay = require('../utils/razorpay');
 const { isValidObjectId } = mongoose;
 
 async function createPaymentOrder(req,res) {
@@ -37,33 +38,54 @@ async function createPaymentOrder(req,res) {
                 message: "Order is already paid"
             });
         }
-        const existingPayment = await paymentModel.findOne({
+        let payment = await paymentModel.findOne({
             order: order._id
         });
 
-        if (existingPayment) {
+        if (payment && payment.status === "Success") {
             return res.status(400).json({
-                message: "Payment already initiated for this order"
+                message: "Order is already paid"
             });
         }
+
+        let razorpayOrder;
+        if (payment && payment.status === "Pending" && payment.razorpayOrderId) {
+            return res.status(200).json({
+                key: process.env.RAZORPAY_KEY_ID,
+                razorpayOrderId: payment.razorpayOrderId,
+                amount: Math.round(order.totalAmount * 100),
+                currency: "INR",
+                paymentId: payment._id
+            });
+        }
+
         const options = {
-            amount: order.totalAmount * 100,
+            amount: Math.round(order.totalAmount * 100),
             currency: "INR",
             receipt: `order_${order._id}`
         };
-        const razorpayOrder = await razorpay.orders.create(options);
+
+        razorpayOrder = await razorpay.orders.create(options);
         if (!razorpayOrder) {
             return res.status(500).json({
                 message: "Failed to create Razorpay order"
             });
         }
-        const payment = await paymentModel.create({
-            user,
-            order: order._id,
-            amount: order.totalAmount,
-            paymentMethod: "ONLINE",
-            razorpayOrderId: razorpayOrder.id
-        });
+
+        if (payment) {
+            payment.razorpayOrderId = razorpayOrder.id;
+            payment.status = "Pending";
+            await payment.save();
+        } else {
+            payment = await paymentModel.create({
+                user,
+                order: order._id,
+                amount: order.totalAmount,
+                paymentMethod: "ONLINE",
+                razorpayOrderId: razorpayOrder.id
+            });
+        }
+
         return res.status(201).json({
             key: process.env.RAZORPAY_KEY_ID,
             razorpayOrderId: razorpayOrder.id,
@@ -132,6 +154,7 @@ async function verifyPayment(req,res) {
 
         payment.paidAt = new Date();
         order.paymentStatus = "Paid";
+        order.paymentId = payment._id.toString();
         
         await Promise.all([
             payment.save(),
@@ -163,3 +186,8 @@ async function verifyPayment(req,res) {
         });
     }
 }
+
+module.exports = {
+    createPaymentOrder,
+    verifyPayment,
+};

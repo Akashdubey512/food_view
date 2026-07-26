@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../context/CartContext"; 
 import "./BottomNav.css";
 
 const BottomNav = () => {
@@ -51,17 +51,7 @@ const BottomNav = () => {
           <line x1="9" y1="16" x2="13" y2="16" />
         </svg>
       ),
-    },
-    {
-      to: "/profile",
-      label: "Profile",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="nav-icon">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-      ),
-    },
+    }
   ];
 
   return (

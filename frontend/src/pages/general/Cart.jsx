@@ -135,7 +135,7 @@ const Cart = () => {
           },
         },
         theme: {
-          color: "#ff3b30",
+          color: "#A7D39B",
         },
       };
 

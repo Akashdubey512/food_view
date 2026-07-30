@@ -7,28 +7,40 @@ const { isValidObjectId } = require('mongoose');
 
 async function createFood(req,res){
     try{
-        const videoLocalPath = req.file.buffer;
+        const videoBuffer    = req.files?.video?.[0]?.buffer;
+        const thumbnailBuffer = req.files?.thumbnail?.[0]?.buffer;
 
-        const videoResult = await uploadOnCloudinary(
-            videoLocalPath,
-            "video"
-        );
+        if (!videoBuffer || !thumbnailBuffer) {
+            return res.status(400).json({
+                message: "Both video and thumbnail are required"
+            });
+        }
+
+        const [videoResult, thumbnailResult] = await Promise.all([
+            uploadOnCloudinary(videoBuffer, "video"),
+            uploadOnCloudinary(thumbnailBuffer, "image")
+        ]);
 
         const food = await foodModel.create({
-            name: req.body.name,
+            name:        req.body.name,
             description: req.body.description,
-            foodPartner: req.foodPartner?._id,
-            video: videoResult.secure_url
+            price:       Number(req.body.price),
+            prepTime:    req.body.prepTime ? Number(req.body.prepTime) : undefined,
+            isVeg:       req.body.isVeg === "false" ? false : true,
+            isAvailable: req.body.isAvailable === "false" ? false : true,
+            foodPartner: req.account.data._id,
+            video:       videoResult.secure_url,
+            thumbnail:   thumbnailResult.secure_url
         });
 
         return res.status(201).json({
             message: "Food created successfully",
-            food : food
+            food
         });
 
     }catch(error){
         console.log(error);
-        return res.status(500).json(error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
 async function getFoodItems(req, res) {
@@ -221,10 +233,82 @@ async function getSavedFood(req, res) {
     }
 }
 
+async function editFood(req, res) {
+    try {
+        const { id } = req.params;
+        const partnerId = req.account.data._id;
+
+        const food = await foodModel.findById(id);
+        if (!food) {
+            return res.status(404).json({ message: "Food not found" });
+        }
+
+        if (food.foodPartner.toString() !== partnerId.toString()) {
+            return res.status(403).json({ message: "Not authorised to edit this food" });
+        }
+
+        // Upload new video if provided
+        if (req.files?.video?.[0]?.buffer) {
+            const videoResult = await uploadOnCloudinary(req.files.video[0].buffer, "video");
+            food.video = videoResult.secure_url;
+        }
+
+        // Upload new thumbnail if provided
+        if (req.files?.thumbnail?.[0]?.buffer) {
+            const thumbResult = await uploadOnCloudinary(req.files.thumbnail[0].buffer, "image");
+            food.thumbnail = thumbResult.secure_url;
+        }
+
+        if (req.body.name        !== undefined) food.name        = req.body.name;
+        if (req.body.description !== undefined) food.description = req.body.description;
+        if (req.body.price       !== undefined) food.price       = Number(req.body.price);
+        if (req.body.prepTime    !== undefined) food.prepTime    = Number(req.body.prepTime);
+        if (req.body.isVeg       !== undefined) food.isVeg       = req.body.isVeg === "false" ? false : true;
+        if (req.body.isAvailable !== undefined) food.isAvailable = req.body.isAvailable === "false" ? false : true;
+
+        await food.save();
+
+        return res.status(200).json({
+            message: "Food updated successfully",
+            food
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+async function deleteFood(req, res) {
+    try {
+        const { id } = req.params;
+        const partnerId = req.account.data._id;
+
+        const food = await foodModel.findById(id);
+        if (!food) {
+            return res.status(404).json({ message: "Food not found" });
+        }
+
+        if (food.foodPartner.toString() !== partnerId.toString()) {
+            return res.status(403).json({ message: "Not authorised to delete this food" });
+        }
+
+        await food.deleteOne();
+
+        return res.status(200).json({ message: "Food deleted successfully" });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 module.exports = {
     createFood,
     getFoodItems,
     likeFood,
     saveFood,
-    getSavedFood
+    getSavedFood,
+    editFood,
+    deleteFood
 }

@@ -40,6 +40,14 @@ const foodSchema = new mongoose.Schema({
     thumbnail:{
         type:String,
         required:true
+    },
+    prepTime:{
+        type: Number,
+        min:10
+    },
+    isVeg:{
+        type:Boolean,
+        default:true
     }
 
 },{timestamps:true})

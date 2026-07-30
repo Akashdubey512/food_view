@@ -24,7 +24,7 @@ function FoodPartnerLogin() {
     )
 
     login(response.data.account)
-    navigate('/create-food')
+    navigate('/foodpartner/dashboard')
   }
 
   return <AuthPage variant="partnerLogin" onSubmit={handlePartnerLogin} />

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ordersAPI } from "./services/orders.api";
@@ -587,11 +587,11 @@ const PartnerOrdersPage = () => {
   ];
 
   const navItems = [
-    { label: "Dashboard", key: "dashboard" },
-    { label: "Orders", key: "orders" },
-    { label: "Menu", key: "menu" },
-    { label: "Analytics", key: "analytics" },
-    { label: "Profile", key: "profile" },
+    { label: "Dashboard", key: "dashboard", path: "/foodpartner/dashboard" },
+    { label: "Orders",    key: "orders",    path: "/foodpartner/orders" },
+    { label: "Menu",      key: "menu",      path: "/foodpartner/menu" },
+    { label: "Analytics", key: "analytics", path: "/foodpartner/analytics" },
+    { label: "Profile",   key: "profile",   path: "/foodpartner/profile" },
   ];
 
   return (
@@ -724,6 +724,7 @@ const PartnerOrdersPage = () => {
               className={`nav-item ${isActive ? "active" : ""}`}
               type="button"
               title={item.label}
+              onClick={() => navigate(item.path)}
             >
               <NavIcon type={item.key} active={isActive} />
               <span className="nav-label">{item.label}</span>

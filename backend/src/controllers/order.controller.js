@@ -3,6 +3,7 @@ const orderModel = require('../models/order.model');
 const paymentModel = require('../models/payment.model');
 const cartModel = require('../models/cart.model');
 const foodModel = require('../models/food.model');
+const { path } = require('../app');
 const { isValidObjectId } = mongoose;
 
 // Endpoints for user
@@ -215,14 +216,17 @@ async function cancelOrder(req,res) {
 //Endpoints for food partner
 async function getFoodPartnerOrders(req,res){
     try {
-        const foodPartner = req.foodPartner._id;
+        const foodPartner = req.account.data._id;
         const orders = await orderModel
             .find({ foodPartner })
             .sort({ createdAt: -1 })
-            .populate({
+            .populate([{
                 path: "items.food",
                 select: "name thumbnail price"
-            });
+            },{
+                path:"user",
+                select:"fullName"
+            }]);
 
         if (orders.length === 0) {
             return res.status(200).json({
@@ -245,7 +249,7 @@ async function getFoodPartnerOrders(req,res){
 
 async function updateOrderStatus(req,res) {
     try {
-        const foodPartner = req.foodPartner._id;
+        const foodPartner =  req.account.data._id;
         const {orderId} = req.params
         const {updationStatus} = req.body
         if(!isValidObjectId(orderId)) {
@@ -306,7 +310,7 @@ async function updateOrderStatus(req,res) {
 
 async function getFoodPartnerOrdersByID(req,res) {
     try {
-        const foodPartner = req.foodPartner._id;
+        const foodPartner =  req.account.data._id;
         const {orderId} = req.params
         if(!isValidObjectId(orderId)) {
             return res.status(400).

@@ -11,7 +11,7 @@ import CreateFood from '../pages/food_partner/createFood'
 import FoodPartnerProfile from '../pages/food_partner/foodPartnerProfile'
 import ErrorPage from '../pages/general/Error'
 import ProtectedRoute from '../components/ProtectedRoute'
-
+import Orderspage from '../pages/food_partner/index'
 const AppRoutes = () => {
   return (
     <Routes>
@@ -42,6 +42,7 @@ const AppRoutes = () => {
           />
         }
       />
+      <Route path="/foodpartner/orders" element={< Orderspage/>} />
       <Route
         path="*"
         element={

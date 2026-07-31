@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header/Header";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import { loadRazorpayScript } from "../../utils/loadRazorpay";
+import { useCart } from "../../context/CartContext";
 import "../../styles/unified-design-system.css";
 import "./page.css";
 import "./Orders.css";
@@ -17,11 +19,14 @@ const STATUS_COLORS = {
 };
 
 const Orders = () => {
+  const navigate = useNavigate();
+  const { addToCart } = useCart(); // ✅ Hook called at top level
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(null);
   const [payingOrder, setPayingOrder] = useState(null);
   const [payError, setPayError] = useState("");
+  const [buyingAgain, setBuyingAgain] = useState(null);
 
   useEffect(() => {
     document.documentElement.classList.remove("no-scroll");
@@ -127,6 +132,23 @@ const Orders = () => {
     }
   };
 
+  const handleBuyAgain = async (order) => {
+    setBuyingAgain(order._id);
+    try {
+      for (const item of order.items) {
+        const foodId = item.food?._id || item.foodId;
+        const quantity = item.quantity || 1;
+        await addToCart(foodId, quantity);
+      }
+      navigate("/cart");
+    } catch (err) {
+      console.error("Failed to add items to cart:", err);
+      setPayError("Failed to add items to cart. Please try again.");
+    } finally {
+      setBuyingAgain(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="page-state loading-state">
@@ -159,6 +181,7 @@ const Orders = () => {
                 order.paymentMethod === "ONLINE" &&
                 order.paymentStatus !== "Paid" &&
                 order.orderStatus !== "Cancelled";
+              const isDelivered = order.orderStatus === "Delivered";
               const itemCount = order.items?.length || 0;
 
               return (
@@ -241,6 +264,16 @@ const Orders = () => {
                           disabled={cancelling === order._id}
                         >
                           {cancelling === order._id ? "Cancelling..." : "Cancel"}
+                        </button>
+                      )}
+
+                      {isDelivered && (
+                        <button
+                          className="order-card__buy-again-btn"
+                          onClick={() => handleBuyAgain(order)}
+                          disabled={buyingAgain === order._id}
+                        >
+                          {buyingAgain === order._id ? "Adding..." : "🔄 Buy Again"}
                         </button>
                       )}
                     </div>

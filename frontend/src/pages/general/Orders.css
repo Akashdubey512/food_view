@@ -253,3 +253,28 @@
   margin-bottom: 12px;
 }
 
+.order-card__buy-again-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  background: linear-gradient(135deg, #34c759, #28a745);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.order-card__buy-again-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(52,199,89,0.4);
+}
+.order-card__buy-again-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+.order-card__buy-again-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

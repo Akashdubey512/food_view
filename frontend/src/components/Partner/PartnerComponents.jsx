@@ -165,7 +165,7 @@ export const StatCard = ({ title, value, icon, subtitle, trend, onClick, active 
 /* =========================================================
    FOOD CARD
    ======================================================== */
-export const FoodCard = ({ food, onEdit, onDelete, onDuplicate, onToggleAvailability }) => {
+export const FoodCard = ({ food, onEdit, onDelete, onToggleAvailability }) => {
   const isVeg = food.isVeg !== undefined ? food.isVeg : true;
   const isAvailable = food.isAvailable !== false;
 
@@ -242,11 +242,7 @@ export const FoodCard = ({ food, onEdit, onDelete, onDuplicate, onToggleAvailabi
             ✏️ Edit
           </button>
         )}
-        {onDuplicate && (
-          <button className="btn-partner-secondary" style={{ flex: 1, minHeight: 36, fontSize: 12 }} onClick={() => onDuplicate(food)}>
-            📋 Duplicate
-          </button>
-        )}
+       
         {onDelete && (
           <button className="btn-partner-danger" style={{ minHeight: 36, padding: "0 12px", fontSize: 12 }} onClick={() => onDelete(food._id)}>
             🗑 Delete

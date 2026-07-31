@@ -12,10 +12,10 @@ import {
 } from "../../components/Partner/PartnerComponents";
 import "../../styles/partner-design-system.css";
 
-
 export default function PartnerMenu() {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // ✅ Added error state
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [toast, setToast] = useState(null);
@@ -28,6 +28,7 @@ export default function PartnerMenu() {
     if (!account?._id) return;
     try {
       setLoading(true);
+      setError(null); // Clear previous errors
       const response = await axios.get(
         `http://localhost:3000/api/v1/food-partner/${account._id}`,
         { withCredentials: true }
@@ -37,7 +38,9 @@ export default function PartnerMenu() {
       }
     } catch (err) {
       console.error("Error fetching menu items:", err);
-      setToast({ message: "Failed to load menu items", type: "error" });
+      const errorMessage = err.response?.data?.message || "Failed to load menu items";
+      setError(errorMessage);
+      setToast({ message: errorMessage, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -79,16 +82,6 @@ export default function PartnerMenu() {
     navigate(`/foodpartner/edit-food/${food._id}`, { state: { food } });
   };
 
-  const handleDuplicate = (food) => {
-    const duplicated = {
-      ...food,
-      _id: `temp-${Date.now()}`,
-      name: `${food.name} (Copy)`,
-    };
-    setFoods((prev) => [duplicated, ...prev]);
-    setToast({ message: "Food item duplicated as draft", type: "success" });
-  };
-
   const confirmDelete = async () => {
     const foodId = deleteModal.foodId;
     setDeleteModal({ isOpen: false, foodId: null });
@@ -102,82 +95,110 @@ export default function PartnerMenu() {
     }
   };
 
+  const handleRetry = () => {
+    fetchFoods();
+  };
+
   return (
     <PartnerLayout title="Menu Management" subtitle="Manage your restaurant offerings">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      {/* Floating Action Button */}
-      <button className="partner-fab" onClick={() => navigate("/foodpartner/add-food")}>
-        <span>➕</span>
-        <span>Add Food</span>
-      </button>
-
-      {/* Top Search & Filter Bar */}
-      <div className="search-section" style={{ borderRadius: 16, marginBottom: 16, border: "1px solid var(--partner-border)" }}>
-        <div className="search-input-wrapper">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search food name, ingredients, or category..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button className="search-clear" onClick={() => setSearchQuery("")}>
-              ✕
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Controls Section: Sort dropdown, Grid/List toggle */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <select
-            className="partner-select"
-            style={{ minHeight: 40, fontSize: 13, flex: 1 }}
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+      {/* ✅ Error State */}
+      {error && !loading && (
+        <div className="error-state" style={{ 
+          textAlign: "center", 
+          padding: "40px 20px",
+          background: "rgba(239, 68, 68, 0.1)",
+          borderRadius: 16,
+          border: "1px solid rgba(239, 68, 68, 0.2)",
+          marginBottom: 20
+        }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+          <h3 style={{ color: "var(--partner-text)", marginBottom: 8 }}>Something went wrong</h3>
+          <p style={{ color: "var(--partner-text-muted)", marginBottom: 16 }}>{error}</p>
+          <button 
+            className="btn-partner-primary" 
+            onClick={handleRetry}
           >
-            <option value="newest">Newest First</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="name">Name: A to Z</option>
-          </select>
-
-
+            🔄 Try Again
+          </button>
         </div>
-      </div>
+      )}
 
-      {/* Main Dishes Container */}
-      {loading ? (
-        <div style={{ display: "grid", gridTemplateColumns:"repeat(auto-fill, minmax(280px, 1fr))"}}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      ) : filteredFoods.length === 0 ? (
-        <EmptyState
-          title="No Foods Yet"
-          message={searchQuery ? "No dishes match your search." : "Start by adding your first dish to your restaurant menu."}
-          icon="🍲"
-          actionLabel="+ Add First Dish"
-          onAction={() => navigate("/foodpartner/add-food")}
-        />
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns:"repeat(auto-fill, minmax(280px, 1fr))"}}>
-          {filteredFoods.map((food) => (
-            <FoodCard
-              key={food._id}
-              food={food}
-              onEdit={handleEdit}
-              onDuplicate={handleDuplicate}
-              onDelete={(id) => setDeleteModal({ isOpen: true, foodId: id })}
-              onToggleAvailability={handleToggleAvailability}
+      {/* Only show content if no error */}
+      {!error && (
+        <>
+          {/* Floating Action Button */}
+          <button className="partner-fab" onClick={() => navigate("/foodpartner/add-food")}>
+            <span>➕</span>
+            <span>Add Food</span>
+          </button>
+
+          {/* Top Search & Filter Bar */}
+          <div className="search-section" style={{ borderRadius: 16, marginBottom: 16, border: "1px solid var(--partner-border)" }}>
+            <div className="search-input-wrapper">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search food name, ingredients, or category..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button className="search-clear" onClick={() => setSearchQuery("")}>
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Controls Section: Sort dropdown */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <select
+                className="partner-select"
+                style={{ minHeight: 40, fontSize: 13, flex: 1 }}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="newest">Newest First</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="name">Name: A to Z</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Main Dishes Container */}
+          {loading ? (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : filteredFoods.length === 0 ? (
+            <EmptyState
+              title="No Foods Yet"
+              message={searchQuery ? "No dishes match your search." : "Start by adding your first dish to your restaurant menu."}
+              icon="🍲"
+              actionLabel="+ Add First Dish"
+              onAction={() => navigate("/foodpartner/add-food")}
             />
-          ))}
-        </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+              {filteredFoods.map((food) => (
+                <FoodCard
+                  key={food._id}
+                  food={food}
+                  onEdit={handleEdit}
+                  onDelete={(id) => setDeleteModal({ isOpen: true, foodId: id })}
+                  onToggleAvailability={handleToggleAvailability}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Confirmation Dialog for Deletion */}

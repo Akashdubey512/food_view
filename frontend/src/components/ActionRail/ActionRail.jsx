@@ -12,6 +12,8 @@ const ActionRail = ({
   showLikeAnimation,
   showSaveAnimation,
   foodPartnerId,
+  foodId,        // Add this prop
+  foodName,      // Add this prop
 }) => {
   const navigate = useNavigate();
 
@@ -19,7 +21,28 @@ const ActionRail = ({
     navigate(`/foodpartner/${foodPartnerId}`);
   };
 
-
+  const handleShare = () => {
+    // Create URL with food ID as query parameter
+    const shareableUrl = `${window.location.origin}/foodpartner/${foodPartnerId}?food=${foodId}`;
+    const title = foodName || "Check out this food reel!";
+    
+    if (navigator.share) {
+      navigator.share({
+        title: title,
+        text: `Check out ${foodName || "this food"} on FoodView! 🍕`,
+        url: shareableUrl,
+      }).catch(() => {});
+    } else {
+      // Fallback for desktop
+      navigator.clipboard.writeText(shareableUrl)
+        .then(() => {
+          alert("Link copied to clipboard!");
+        })
+        .catch(() => {
+          prompt("Copy this link:", shareableUrl);
+        });
+    }
+  };
 
   return (
     <div className="action-rail" role="group" aria-label="Reel actions">
@@ -105,7 +128,29 @@ const ActionRail = ({
         </button>
       </div>
 
-      
+      {/* ====== SHARE ACTION ====== */}
+      <div className="action-item">
+        <button
+          className="action-button action-button--share"
+          onClick={handleShare}
+          aria-label="Share"
+          type="button"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="action-icon"
+          >
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 };

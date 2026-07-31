@@ -2,6 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const authMiddleware = require('../middlewares/auth.middleware');
 const foodController = require('../controllers/food.controller');
+
 const multer = require('multer');
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -61,6 +62,20 @@ router.delete(
     '/:id',
     authMiddleware.authFoodPartnerMiddleware,
     foodController.deleteFood
+);
+
+// GET /api/v1/food/:foodId/like-status  — check if user liked a food
+router.get(
+    '/:foodId/like-status',
+    authMiddleware.authUserMiddleware,
+    foodController.getLikeStatus
+);
+
+// GET /api/v1/food/:foodId/save-status  — check if user saved a food
+router.get(
+    '/:foodId/save-status',
+    authMiddleware.authUserMiddleware,
+    foodController.getSaveStatus
 );
 
 module.exports = router;

@@ -2,7 +2,7 @@ const router = require("express").Router();
 const { getFoodPartnerById } = require("../controllers/food-partner.controller");
 const {authUserMiddleware} = require("../middlewares/auth.middleware")
 
-
+router.use(authUserMiddleware);
 router.get("/:id",
     getFoodPartnerById);
 

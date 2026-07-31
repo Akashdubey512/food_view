@@ -54,22 +54,46 @@ function FeaturedPlayer({ reel, partnerName, onNextReel, onPrevReel, hasPrev, ha
 
   const [playing, setPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
-  const [isLiked, setIsLiked] = useState(reel?.isLiked || false);
-  const [isSaved, setIsSaved] = useState(reel?.isSaved || false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(reel?.likesCount || 0);
+  const [saveCount, setSaveCount] = useState(reel?.saveCount || 0);
   const [isLiking, setIsLiking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [cartLoad, setCartLoad] = useState(false);
   const [cartMsg, setCartMsg] = useState("");
+  const [statusLoading, setStatusLoading] = useState(true);
 
   const { addToCart, isInCart } = useCart();
   const navigate = useNavigate();
   const inCart = isInCart(reel._id);
 
   useEffect(() => {
-    setIsLiked(reel?.isLiked || false);
-    setIsSaved(reel?.isSaved || false);
-    setLikeCount(reel?.likesCount || 0);
+    const fetchStatus = async () => {
+      setStatusLoading(true);
+      try {
+        const likeRes = await axios.get(`${API}/food/${reel._id}/like-status`, {
+          withCredentials: true
+        });
+        setIsLiked(likeRes.data.isLiked || false);
+        
+        const saveRes = await axios.get(`${API}/food/${reel._id}/save-status`, {
+          withCredentials: true
+        });
+        setIsSaved(saveRes.data.isSaved || false);
+        
+        setLikeCount(reel?.likesCount || 0);
+        setSaveCount(reel?.saveCount || 0);
+      } catch (err) {
+        console.error("Error fetching status:", err);
+        setIsLiked(false);
+        setIsSaved(false);
+      } finally {
+        setStatusLoading(false);
+      }
+    };
+
+    fetchStatus();
     setPlaying(true);
     setProgress(0);
     setCartMsg("");
@@ -151,8 +175,10 @@ function FeaturedPlayer({ reel, partnerName, onNextReel, onPrevReel, hasPrev, ha
     try {
       const res = await axios.post(`${API}/food/save`, { foodId: reel._id }, { withCredentials: true });
       setIsSaved(res.data.savedStatus);
+      setSaveCount(res.data.food?.saveCount ?? saveCount);
     } catch {
       setIsSaved(prevSaved);
+      setSaveCount(prev.saveCount);
     } finally {
       setIsSaving(false);
     }
@@ -181,6 +207,16 @@ function FeaturedPlayer({ reel, partnerName, onNextReel, onPrevReel, hasPrev, ha
       navigator.clipboard.writeText(url).catch(() => {});
     }
   };
+
+if (statusLoading) {
+  return (
+    <div className="fpp-player">
+      <div className="fpp-player__video-wrap" style={{ minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="spinner" />
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="fpp-player">
@@ -255,6 +291,7 @@ function FeaturedPlayer({ reel, partnerName, onNextReel, onPrevReel, hasPrev, ha
             <svg viewBox="0 0 24 24" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" width="22" height="22">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
             </svg>
+            <span className="fpp-rail-btn__count">{saveCount}</span>
           </button>
 
           <button className="fpp-rail-btn" onClick={handleShare} aria-label="Share">

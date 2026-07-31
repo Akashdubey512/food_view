@@ -195,6 +195,63 @@ try{
     });
 }
 }
+// Get like status for a specific food
+
+async function getLikeStatus(req, res) {
+    try {
+        const { foodId } = req.params;
+        
+        if (!isValidObjectId(foodId)) {
+            return res.status(400).json({ message: "Invalid food ID" });
+        }
+
+        const food = await foodModel.findById(foodId);
+        if (!food) {
+            return res.status(404).json({ message: "Food not found" });
+        }
+
+        const existingLike = await LikeModel.findOne({
+            user: req.user._id,
+            food: foodId
+        });
+
+        res.status(200).json({
+            isLiked: !!existingLike
+        });
+    } catch (error) {
+        console.error("Error getting like status:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+// Get save status for a specific food
+async function getSaveStatus(req, res) {
+    try {
+        const { foodId } = req.params;
+        
+        if (!isValidObjectId(foodId)) {
+            return res.status(400).json({ message: "Invalid food ID" });
+        }
+
+        const food = await foodModel.findById(foodId);
+        if (!food) {
+            return res.status(404).json({ message: "Food not found" });
+        }
+
+        const existingSave = await saveFoodModel.findOne({
+            user: req.user._id,
+            food: foodId
+        });
+
+        res.status(200).json({
+            isSaved: !!existingSave
+        });
+    } catch (error) {
+        console.error("Error getting save status:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 async function getSavedFood(req, res) {
     try {
         const [savedFood, likedFoodIds] = await Promise.all([
@@ -310,5 +367,7 @@ module.exports = {
     saveFood,
     getSavedFood,
     editFood,
-    deleteFood
+    deleteFood,
+    getLikeStatus,
+    getSaveStatus
 }

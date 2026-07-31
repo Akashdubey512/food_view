@@ -91,7 +91,6 @@ function EyeOffIcon(props) {
     </svg>
   )
 }
-
 function AuthField({ label, error, fieldId, icon: Icon, ...props }) {
   const inputId = useId()
   const errorId = `${inputId}-error`
@@ -111,7 +110,7 @@ function AuthField({ label, error, fieldId, icon: Icon, ...props }) {
         />
       </div>
       {error ? (
-        <p className="auth-field__error" id={errorId} role="alert">
+        <p className="auth-field__error" id={errorId} role="alert" style={{ color: 'red', alignItems: 'center', display: 'flex' }}>
           {error}
         </p>
       ) : null}
@@ -148,14 +147,13 @@ function PasswordField({ label, error, fieldId, ...props }) {
         </button>
       </div>
       {error ? (
-        <p className="auth-field__error" id={errorId} role="alert">
+        <p className="auth-field__error" id={errorId} role="alert" style={{ color: 'red', alignItems: 'center', display: 'flex' }}>
           {error}
         </p>
       ) : null}
     </label>
   )
 }
-
 function SubmitButton({ children, isLoading = false, isSuccess = false }) {
   return (
     <button className="auth-button" disabled={isLoading || isSuccess} type="submit">
@@ -173,7 +171,8 @@ function AuthSwitch({ label, text, to }) {
   )
 }
 
-function AuthFormCard({ title, subtitle, actionLabel, children, switchLabel, switchText, switchTo, onSubmit }) {
+
+function AuthFormCard({ title, subtitle, actionLabel, children, switchLabel, switchText, switchTo, onSubmit, error, isLoading }) {
   return (
     <div className="auth-form-card">
       <div className="auth-heading">
@@ -183,8 +182,27 @@ function AuthFormCard({ title, subtitle, actionLabel, children, switchLabel, swi
       </div>
 
       <form className="auth-form" onSubmit={onSubmit}>
+        {error && !error.field && (
+          <div 
+            className="auth-error-general" 
+            style={{ 
+              color: 'red', 
+              alignItems: 'center',
+              display: 'flex',
+              gap: '0.5rem',
+              padding: '0.75rem 1rem',
+              border: '1px solid #fecaca',
+              borderRadius: '0.5rem',
+              backgroundColor: '#fef2f2',
+              marginBottom: '1rem'
+            }} 
+            role="alert"
+          >
+            {error.message || error}
+          </div>
+        )}
         {children}
-        <SubmitButton>{actionLabel}</SubmitButton>
+        <SubmitButton isLoading={isLoading}>{actionLabel}</SubmitButton>
       </form>
 
       <AuthSwitch label={switchLabel} text={switchText} to={switchTo} />
@@ -192,4 +210,15 @@ function AuthFormCard({ title, subtitle, actionLabel, children, switchLabel, swi
   )
 }
 
-export { AuthField, AuthFormCard, AuthHeroPanel, BrandMark, LockIcon, MailIcon, PasswordField, SubmitButton, AuthSwitch, UserIcon }
+export { 
+  AuthField, 
+  AuthFormCard, 
+  AuthHeroPanel, 
+  BrandMark, 
+  LockIcon, 
+  MailIcon, 
+  PasswordField, 
+  SubmitButton, 
+  AuthSwitch, 
+  UserIcon 
+}

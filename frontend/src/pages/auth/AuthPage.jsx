@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+﻿import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { AuthField, AuthFormCard, AuthHeroPanel, LockIcon, MailIcon, PasswordField, UserIcon } from '../../components/auth/AuthComponents'
 import { useEffect, useState } from 'react'
 import useAuthFlow from '../../context/useAuthFlow'
@@ -104,22 +104,55 @@ const formCopy = {
   },
 }
 
-function AuthPage({ variant = 'userLogin', onSubmit }) {
+function AuthPage({ variant = 'userLogin', onSubmit, error: propError, validationErrors: propValidationErrors, isLoading }) {
   const page = formCopy[variant] || formCopy.userLogin
 
   return (
     <AuthFlowProvider>
-      <AuthPageContent page={page} onSubmit={onSubmit} />
+      <AuthPageContent 
+        page={page} 
+        onSubmit={onSubmit} 
+        propError={propError}
+        propValidationErrors={propValidationErrors}
+        isLoading={isLoading}
+      />
     </AuthFlowProvider>
   )
 }
 
-function AuthPageContent({ page, onSubmit }) {
+function AuthPageContent({ page, onSubmit, propError, propValidationErrors, isLoading }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { formData, updateFieldValue } = useAuthFlow()
   const [startPoint, setStartPoint] = useState(null)
   const [slideDirection, setSlideDirection] = useState(null)
+  const [error, setError] = useState(null)
+  const [validationErrors, setValidationErrors] = useState({})
+
+  useEffect(() => {
+    if (propError) {
+      setError(propError)
+    }
+  }, [propError])
+
+  useEffect(() => {
+    if (propValidationErrors) {
+      setValidationErrors(propValidationErrors)
+    }
+  }, [propValidationErrors])
+
+  // Helper function to get field error
+  const getFieldError = (fieldId) => {
+    // Check validation errors
+    if (validationErrors[fieldId]) {
+      return validationErrors[fieldId]
+    }
+    // Check error prop
+    if (error && error.field === fieldId) {
+      return error.message
+    }
+    return undefined
+  }
 
   const authRoutes = ['/user/login', '/user/register', '/foodpartner/login', '/foodpartner/register']
   const currentIndex = authRoutes.indexOf(location.pathname)
@@ -199,10 +232,26 @@ function AuthPageContent({ page, onSubmit }) {
   }
 
   useEffect(() => {
+    setError(null)
+    setValidationErrors({})
+  }, [location.pathname])
+
+  useEffect(() => {
     if (!slideDirection) return
     const timeout = window.setTimeout(() => setSlideDirection(null), 280)
     return () => window.clearTimeout(timeout)
   }, [slideDirection, location.pathname])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    setValidationErrors({})
+    try {
+      await onSubmit(e)
+    } catch (err) {
+      setError(err)
+    }
+  }
 
   return (
     <main
@@ -243,22 +292,40 @@ function AuthPageContent({ page, onSubmit }) {
 
         <AuthFormCard
           actionLabel={page.action}
-          onSubmit={onSubmit}
+          onSubmit={handleSubmit}
           subtitle={page.subtitle}
           switchLabel={page.switchLabel}
           switchText={page.switchText}
           switchTo={page.switchTo}
           title={page.title}
+          error={error}
+          isLoading={isLoading}
         >
           {page.fields.map((field) => {
+            const fieldError = getFieldError(field.id)
+
             const sharedProps = {
               autoComplete: field.autoComplete,
               fieldId: field.id,
               label: field.label,
-              onChange: (event) => updateFieldValue(field.id, event.target.value),
+              onChange: (event) => {
+                updateFieldValue(field.id, event.target.value)
+                // Clear errors on change - proper deletion
+                if (validationErrors[field.id]) {
+                  setValidationErrors(prev => {
+                    const newErrors = { ...prev }
+                    delete newErrors[field.id]
+                    return newErrors
+                  })
+                }
+                if (error && error.field === field.id) {
+                  setError(null)
+                }
+              },
               placeholder: field.placeholder,
               type: field.type,
               value: formData[field.id] ?? '',
+              error: fieldError,
             }
 
             if (field.type === 'password') {
@@ -280,4 +347,3 @@ function AuthPageContent({ page, onSubmit }) {
 }
 
 export default AuthPage
- 

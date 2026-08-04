@@ -101,7 +101,7 @@ function FoodPartnerRegister() {
         'http://localhost:3000/api/v1/auth/food-partner/register',
         {
           fullName: ownerName.trim(),
-          businessName: businessName.trim(), // Fixed: changed from bussinessName to businessName
+          bussinessName: businessName.trim(),
           phoneNumber: phone.trim(),
           email: email.trim().toLowerCase(),
           address: address.trim(),
@@ -113,7 +113,7 @@ function FoodPartnerRegister() {
       )
 
       login(response.data.account)
-      navigate('/create-food')
+      navigate('/foodpartner/dashboard')
     } catch (error) {
       if (error.response) {
         const status = error.response.status

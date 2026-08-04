@@ -7,6 +7,7 @@ import {
   Toast,
 } from "../../components/Partner/PartnerComponents";
 import "../../styles/partner-design-system.css";
+import axios from "axios";
 
 /* TODO: Backend foodpartner.model.js includes: fullName, bussinessName, email, phoneNumber, address, customerServed. Opening hours, cuisine, gstNumber, and bankDetails can be persisted on backend model. */
 
@@ -34,23 +35,78 @@ export default function PartnerProfile() {
   const [editForm, setEditForm] = useState({ ...profileData });
   const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
 
-  const handleSaveProfile = (e) => {
+const handleSaveProfile = async (e) => {
     e.preventDefault();
-    setProfileData({ ...editForm });
-    setEditModalOpen(false);
-    setToast({ message: "Profile details updated successfully!", type: "success" });
-  };
 
-  const handleChangePassword = (e) => {
+    try {
+        const res = await axios.patch(
+            "http://localhost:3000/api/v1/food-partner/edit-profile",
+            {
+                fullName: editForm.fullName,
+                bussinessName: editForm.bussinessName,
+                phoneNumber: editForm.phoneNumber,
+                address: editForm.address,
+            },
+            {
+                withCredentials: true,
+            }
+        );
+
+        setProfileData({ ...editForm });
+
+        setEditModalOpen(false);
+
+        setToast({
+            message: res.data.message || "Profile updated successfully!",
+            type: "success",
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        setToast({
+            message:
+                err.response?.data?.message || "Failed to update profile",
+            type: "error",
+        });
+    }
+};
+
+const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setToast({ message: "New passwords do not match!", type: "error" });
-      return;
+        setToast({ message: "New passwords do not match!", type: "error" });
+        return;
     }
-    setPasswordModalOpen(false);
-    setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
-    setToast({ message: "Password updated successfully!", type: "success" });
-  };
+    try {
+        await axios.patch(
+            "http://localhost:3000/api/v1/food-partner/change-password",
+            {
+              currentPassword: passwordForm.oldPassword,
+              newPassword: passwordForm.newPassword,
+            },
+            { withCredentials: true }
+        );
+
+        setPasswordModalOpen(false);
+        setPasswordForm({
+            oldPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+        });
+
+        setToast({
+            message: "Password updated successfully!",
+            type: "success",
+        });
+    } catch (err) {
+        setToast({
+            message:
+                err.response?.data?.message || "Failed to update password",
+            type: "error",
+        });
+    }
+};
 
   const handleLogout = async () => {
     try {
@@ -171,10 +227,6 @@ export default function PartnerProfile() {
           <div className="partner-input-group">
             <label className="partner-input-label">Store Address</label>
             <textarea className="partner-textarea" value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} required />
-          </div>
-          <div className="partner-input-group">
-            <label className="partner-input-label">Cuisine Types</label>
-            <input type="text" className="partner-input" value={editForm.cuisine} onChange={(e) => setEditForm({ ...editForm, cuisine: e.target.value })} />
           </div>
           <button type="submit" className="btn-partner-primary" style={{ marginTop: 10 }}>Save Changes</button>
         </form>

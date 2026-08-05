@@ -9,7 +9,7 @@ const orderRoutes=require('./routes/order.routes')
 const paymentRoutes=require('./routes/payment.routes')
 const healthRoutes=require('./routes/health.routes')
 const cors=require('cors')
-const apiLimiter = require("./middlewares/rateLimit");
+const apiLimiter = require("./middlewares/rateLimit.middleware");
 
 const app = express();
 app.set("trust proxy", 1);

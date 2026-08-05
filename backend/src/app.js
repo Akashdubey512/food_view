@@ -7,9 +7,12 @@ const meRoutes=require('./routes/me.routes')
 const cartRoutes=require('./routes/cart.routes')
 const orderRoutes=require('./routes/order.routes')
 const paymentRoutes=require('./routes/payment.routes')
+const healthRoutes=require('./routes/health.routes')
 const cors=require('cors')
+const apiLimiter = require("./middlewares/rateLimit");
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(
   cors({
@@ -17,6 +20,8 @@ app.use(
     credentials: true,
   })
 );
+app.use("/api/v1/health", healthRoutes);
+app.use(apiLimiter);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

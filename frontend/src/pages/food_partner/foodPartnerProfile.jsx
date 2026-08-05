@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import {useAuth} from '../../context/AuthContext'
 import axios from "axios";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import { useCart } from "../../context/CartContext";
@@ -394,6 +395,7 @@ function ReelThumb({ food, isActive, onClick }) {
 ══════════════════════════════════════════════════════════ */
 export default function FoodPartnerProfile() {
   const { id } = useParams();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const heroRef = useRef(null);
 
@@ -422,6 +424,12 @@ export default function FoodPartnerProfile() {
   }, [id]);
 
   const activeReel = foods[activeReelIndex] || null;
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/user/login');
+    }
+  }, [authLoading, isAuthenticated, navigate]);
 
   const selectReelByIndex = useCallback((idx) => {
     if (idx >= 0 && idx < foods.length) {

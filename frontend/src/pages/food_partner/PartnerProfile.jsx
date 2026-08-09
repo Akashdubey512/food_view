@@ -7,7 +7,7 @@ import {
   Toast,
 } from "../../components/Partner/PartnerComponents";
 import "../../styles/partner-design-system.css";
-import axios from "axios";
+import api from "../../utils/api";
 
 /* TODO: Backend foodpartner.model.js includes: fullName, bussinessName, email, phoneNumber, address, customerServed. Opening hours, cuisine, gstNumber, and bankDetails can be persisted on backend model. */
 
@@ -39,16 +39,13 @@ const handleSaveProfile = async (e) => {
     e.preventDefault();
 
     try {
-        const res = await axios.patch(
-            "http://localhost:3000/api/v1/food-partner/edit-profile",
+        const res = await api.patch(
+            "/api/v1/food-partner/edit-profile",
             {
                 fullName: editForm.fullName,
                 bussinessName: editForm.bussinessName,
                 phoneNumber: editForm.phoneNumber,
                 address: editForm.address,
-            },
-            {
-                withCredentials: true,
             }
         );
 
@@ -79,13 +76,12 @@ const handleChangePassword = async (e) => {
         return;
     }
     try {
-        await axios.patch(
-            "http://localhost:3000/api/v1/food-partner/change-password",
+        await api.patch(
+            "/api/v1/food-partner/change-password",
             {
               currentPassword: passwordForm.oldPassword,
               newPassword: passwordForm.newPassword,
-            },
-            { withCredentials: true }
+            }
         );
 
         setPasswordModalOpen(false);

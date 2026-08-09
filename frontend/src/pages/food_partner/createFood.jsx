@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 import { PartnerBottomNav } from "../../components/Partner/PartnerComponents";
 import "../../styles/createFood.css";
 
-const API = "http://localhost:3000/api/v1/food";
+const API = "/api/v1/food";
 
 export default function CreateFood() {
   const navigate  = useNavigate();
@@ -91,10 +91,10 @@ export default function CreateFood() {
 
       if (isEditMode) {
         const foodId = existingFood?._id || id;
-        await axios.patch(`${API}/${foodId}`, formData, { withCredentials: true });
+        await api.patch(`${API}/${foodId}`, formData);
         setStatus("Dish updated successfully!");
       } else {
-        await axios.post(API, formData, { withCredentials: true });
+        await api.post(API, formData);
         setStatus("Dish published successfully!");
       }
 

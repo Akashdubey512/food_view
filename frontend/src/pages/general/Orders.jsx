@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header/Header";
 import BottomNav from "../../components/BottomNav/BottomNav";
@@ -37,9 +37,7 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:3000/api/v1/order", {
-        withCredentials: true,
-      });
+      const res = await api.get("/api/v1/order");
       setOrders(res.data.orders || []);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
@@ -51,11 +49,7 @@ const Orders = () => {
   const handleCancel = async (orderId) => {
     setCancelling(orderId);
     try {
-      await axios.post(
-        `http://localhost:3000/api/v1/order/${orderId}/cancel`,
-        {},
-        { withCredentials: true }
-      );
+      await api.post(`/api/v1/order/${orderId}/cancel`, {});
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, orderStatus: "Cancelled" } : o))
       );
@@ -77,11 +71,7 @@ const Orders = () => {
         return;
       }
 
-      const payRes = await axios.post(
-        "http://localhost:3000/api/v1/payment/create",
-        { orderId: order._id },
-        { withCredentials: true }
-      );
+      const payRes = await api.post("/api/v1/payment/create", { orderId: order._id });
 
       const { key, razorpayOrderId, amount, currency } = payRes.data;
 
@@ -94,15 +84,11 @@ const Orders = () => {
         order_id: razorpayOrderId,
         handler: async (response) => {
           try {
-            await axios.post(
-              "http://localhost:3000/api/v1/payment/verify",
-              {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              },
-              { withCredentials: true }
-            );
+            await api.post("/api/v1/payment/verify", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
             await fetchOrders();
           } catch (vErr) {
             setPayError(vErr.response?.data?.message || "Payment verification failed.");

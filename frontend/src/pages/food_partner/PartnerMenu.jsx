@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import axios from "axios";
+import api from "../../utils/api";
 import {
   PartnerLayout,
   FoodCard,
@@ -29,10 +29,7 @@ export default function PartnerMenu() {
     try {
       setLoading(true);
       setError(null); // Clear previous errors
-      const response = await axios.get(
-        `http://localhost:3000/api/v1/food-partner/${account._id}`,
-        { withCredentials: true }
-      );
+      const response = await api.get(`/api/v1/food-partner/${account._id}`);
       if (response.data?.foodPartner?.foodItems) {
         setFoods(response.data.foodPartner.foodItems);
       }
@@ -86,7 +83,7 @@ export default function PartnerMenu() {
     const foodId = deleteModal.foodId;
     setDeleteModal({ isOpen: false, foodId: null });
     try {
-      await axios.delete(`http://localhost:3000/api/v1/food/${foodId}`, { withCredentials: true });
+      await api.delete(`/api/v1/food/${foodId}`);
       setFoods((prev) => prev.filter((f) => f._id !== foodId));
       setToast({ message: "Food item deleted from menu", type: "success" });
     } catch (err) {

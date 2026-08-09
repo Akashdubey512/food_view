@@ -1,38 +1,23 @@
-﻿import axios from "axios";
-
-const API_URL = "http://localhost:3000/api/v1/order";
+import api from "../../../utils/api";
 
 export const ordersAPI = {
-  /**
-   * Fetch all orders for food partner
-   */
+
   getOrders: async () => {
-    const response = await axios.get(`${API_URL}/foodpartner`, {
-      withCredentials: true,
-    });
+    const response = await api.get("/api/v1/order/foodpartner");
     return response.data;
   },
 
-  /**
-   * Get order by ID
-   */
   getOrderById: async (orderId) => {
-    const response = await axios.get(
-      `${API_URL}/foodpartner/${orderId}`,
-      { withCredentials: true }
-    );
+    const response = await api.get(`/api/v1/order/foodpartner/${orderId}`);
     return response.data;
   },
 
-  /**
-   * Update order status
-   */
   updateOrderStatus: async (orderId, updationStatus) => {
-    const response = await axios.patch(
-      `${API_URL}/foodpartner/${orderId}`,
-      { updationStatus },
-      { withCredentials: true }
+    const response = await api.patch(
+      `/api/v1/order/foodpartner/${orderId}`,
+      { updationStatus }
     );
     return response.data;
   },
 };
+

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ordersAPI } from "./services/orders.api";
-import axios from "axios";
+import api from "../../utils/api";
 import {
   PartnerLayout,
   StatCard,
@@ -29,7 +29,7 @@ export default function PartnerDashboard() {
         const [ordersRes, partnerRes] = await Promise.allSettled([
           ordersAPI.getOrders(),
           account?._id
-            ? axios.get(`http://localhost:3000/api/v1/food-partner/${account._id}`, { withCredentials: true })
+            ? api.get(`/api/v1/food-partner/${account._id}`)
             : Promise.resolve(null),
         ]);
 

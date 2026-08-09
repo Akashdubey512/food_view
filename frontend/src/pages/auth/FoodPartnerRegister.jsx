@@ -1,6 +1,6 @@
-﻿import AuthPage from './AuthPage'
+import AuthPage from './AuthPage'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../../utils/api'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useState } from 'react'
 
@@ -97,8 +97,8 @@ function FoodPartnerRegister() {
     }
 
     try {
-      const response = await axios.post(
-        'http://localhost:3000/api/v1/auth/food-partner/register',
+      const response = await api.post(
+        '/api/v1/auth/food-partner/register',
         {
           fullName: ownerName.trim(),
           bussinessName: businessName.trim(),
@@ -106,9 +106,6 @@ function FoodPartnerRegister() {
           email: email.trim().toLowerCase(),
           address: address.trim(),
           password,
-        },
-        {
-          withCredentials: true,
         }
       )
 

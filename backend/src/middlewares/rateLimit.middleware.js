@@ -2,7 +2,7 @@ const rateLimit = require("express-rate-limit");
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100,// 100 requests per IP
+  limit: 200, // 200 requests per IP
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: {
@@ -11,4 +11,18 @@ const apiLimiter = rateLimit({
   },
 });
 
-module.exports = apiLimiter;
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 15, // 15 requests per IP for auth routes
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many authentication attempts. Please try again later.",
+  },
+});
+
+module.exports = {
+  apiLimiter,
+  authLimiter,
+};

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 import { PartnerLayout, Toast } from "../../components/Partner/PartnerComponents";
 import "../../styles/partner-design-system.css";
 
@@ -88,9 +88,7 @@ export default function PartnerAddFood() {
         formData.append("video", mediaFile);
       }
 
-      await axios.post("http://localhost:3000/api/v1/food", formData, {
-        withCredentials: true,
-      });
+      await api.post("/api/v1/food", formData);
 
       setToast({
         message: isEditMode

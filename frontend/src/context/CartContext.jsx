@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useAuth } from "./AuthContext";
 
 const CartContext = createContext(null);
@@ -26,9 +26,7 @@ function CartProvider({ children }) {
     setLoading(true);
 
     try {
-      const res = await axios.get("http://localhost:3000/api/v1/cart", {
-        withCredentials: true,
-      });
+      const res = await api.get("/api/v1/cart");
 
       if (currentRequestId === requestIdRef.current) {
         setCart(res.data.cart || EMPTY_CART);
@@ -64,10 +62,9 @@ function CartProvider({ children }) {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/v1/cart/add",
-        { food: foodId, quantity },
-        { withCredentials: true }
+      const res = await api.post(
+        "/api/v1/cart/add",
+        { food: foodId, quantity }
       );
       setCart(res.data.cart);
       return { success: true };
@@ -82,9 +79,8 @@ function CartProvider({ children }) {
     }
 
     try {
-      const res = await axios.delete("http://localhost:3000/api/v1/cart/remove", {
-        data: { food: foodId },
-        withCredentials: true,
+      const res = await api.delete("/api/v1/cart/remove", {
+        data: { food: foodId }
       });
       setCart(res.data.cart);
       return { success: true };
@@ -99,10 +95,9 @@ function CartProvider({ children }) {
     }
 
     try {
-      const res = await axios.patch(
-        "http://localhost:3000/api/v1/cart/update",
-        { food: foodId, operation },
-        { withCredentials: true }
+      const res = await api.patch(
+        "/api/v1/cart/update",
+        { food: foodId, operation }
       );
       setCart(res.data.cart);
       return { success: true };
@@ -117,9 +112,7 @@ function CartProvider({ children }) {
     }
 
     try {
-      await axios.delete("http://localhost:3000/api/v1/cart/clear", {
-        withCredentials: true,
-      });
+      await api.delete("/api/v1/cart/clear");
       setCart(EMPTY_CART);
     } catch {}
   }, [account]);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 import Header from "../../components/Header/Header";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import { useCart } from "../../context/CartContext";
@@ -68,11 +68,10 @@ const Cart = () => {
 
     try {
       // 1. Create order in backend
-      const orderRes = await axios.post(
-        "http://localhost:3000/api/v1/order",
-        { deliveryAddress: address, paymentMethod: paymentMethod },
-        { withCredentials: true }
-      );
+      const orderRes = await api.post("/api/v1/order", {
+        deliveryAddress: address,
+        paymentMethod: paymentMethod,
+      });
 
       const createdOrder = orderRes.data.order;
 
@@ -93,11 +92,9 @@ const Cart = () => {
         return;
       }
 
-      const payRes = await axios.post(
-        "http://localhost:3000/api/v1/payment/create",
-        { orderId: createdOrder._id },
-        { withCredentials: true }
-      );
+      const payRes = await api.post("/api/v1/payment/create", {
+        orderId: createdOrder._id,
+      });
 
       const { key, razorpayOrderId, amount, currency } = payRes.data;
 
@@ -110,15 +107,11 @@ const Cart = () => {
         order_id: razorpayOrderId,
         handler: async (response) => {
           try {
-            await axios.post(
-              "http://localhost:3000/api/v1/payment/verify",
-              {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              },
-              { withCredentials: true }
-            );
+            await api.post("/api/v1/payment/verify", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
             setOrderMsg("🎉 Payment successful & Order placed! Redirecting...");
             await fetchCart();
             setTimeout(() => navigate("/orders"), 2000);

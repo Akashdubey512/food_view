@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {useAuth} from '../../context/AuthContext'
-import axios from "axios";
+import api from "../../utils/api";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import { useCart } from "../../context/CartContext";
 import "../../styles/partner-design-system.css";
 import "../../styles/FoodPartnerProfile.css";
 
-const API = "http://localhost:3000/api/v1";
+const API = "/api/v1";
 
 /* ══════════════════════════════════════════════════════════
    SKELETON LOADER
@@ -73,14 +73,10 @@ function FeaturedPlayer({ reel, partnerName, onNextReel, onPrevReel, hasPrev, ha
     const fetchStatus = async () => {
       setStatusLoading(true);
       try {
-        const likeRes = await axios.get(`${API}/food/${reel._id}/like-status`, {
-          withCredentials: true
-        });
+        const likeRes = await api.get(`${API}/food/${reel._id}/like-status`);
         setIsLiked(likeRes.data.isLiked || false);
         
-        const saveRes = await axios.get(`${API}/food/${reel._id}/save-status`, {
-          withCredentials: true
-        });
+        const saveRes = await api.get(`${API}/food/${reel._id}/save-status`);
         setIsSaved(saveRes.data.isSaved || false);
         
         setLikeCount(reel?.likesCount || 0);
@@ -156,7 +152,7 @@ function FeaturedPlayer({ reel, partnerName, onNextReel, onPrevReel, hasPrev, ha
     setIsLiked(l => !l);
     setLikeCount(c => (isLiked ? c - 1 : c + 1));
     try {
-      const res = await axios.post(`${API}/food/like`, { foodId: reel._id }, { withCredentials: true });
+      const res = await api.post(`${API}/food/like`, { foodId: reel._id });
       setIsLiked(res.data.likedStatus);
       setLikeCount(res.data.food?.likesCount ?? likeCount);
     } catch {
@@ -174,7 +170,7 @@ function FeaturedPlayer({ reel, partnerName, onNextReel, onPrevReel, hasPrev, ha
     const prevSaved = isSaved;
     setIsSaved(s => !s);
     try {
-      const res = await axios.post(`${API}/food/save`, { foodId: reel._id }, { withCredentials: true });
+      const res = await api.post(`${API}/food/save`, { foodId: reel._id });
       setIsSaved(res.data.savedStatus);
       setSaveCount(res.data.food?.saveCount ?? saveCount);
     } catch {
@@ -408,7 +404,7 @@ export default function FoodPartnerProfile() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    axios.get(`${API}/food-partner/${id}`, { withCredentials: true })
+    api.get(`${API}/food-partner/${id}`)
       .then(res => {
         const fp = res.data.foodPartner;
         setPartner(fp);

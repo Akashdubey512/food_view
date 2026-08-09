@@ -1,6 +1,6 @@
-﻿import AuthPage from './AuthPage'
+import AuthPage from './AuthPage'
 import React, { useState } from 'react'
-import axios from 'axios'
+import api from '../../utils/api'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 
@@ -71,15 +71,12 @@ function UserRegister() {
     }
 
     try {
-      const response = await axios.post(
-        'http://localhost:3000/api/v1/auth/register',
+      const response = await api.post(
+        '/api/v1/auth/register',
         {
           fullName: name.trim(),
           email: email.trim().toLowerCase(),
           password,
-        },
-        {
-          withCredentials: true,
         }
       )
 

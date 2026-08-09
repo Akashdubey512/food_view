@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import axios from 'axios'
+import api from '../utils/api'
 
 const AuthContext = createContext(null)
 
@@ -10,9 +10,7 @@ function AuthProvider({ children }) {
   useEffect(() => {
     async function fetchCurrentAccount() {
       try {
-        const response = await axios.get('http://localhost:3000/api/v1/me', {
-          withCredentials: true,
-        })
+        const response = await api.get('/api/v1/me')
 
         setAccount(response.data.account)
       } catch (err) {
@@ -31,9 +29,7 @@ function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await axios.get('http://localhost:3000/api/v1/auth/logout', {
-        withCredentials: true,
-      })
+      await api.get('/api/v1/auth/logout')
     } catch (err) {
       console.warn('Logout failed', err)
     }

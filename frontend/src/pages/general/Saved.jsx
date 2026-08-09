@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 import Header from "../../components/Header/Header";
 import Reels from "../../components/Reels/Reels";
 import BottomNav from "../../components/BottomNav/BottomNav";
@@ -26,9 +26,7 @@ const Saved = () => {
     const fetchSavedReels = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:3000/api/v1/food/saved", {
-          withCredentials: true,
-        });
+        const response = await api.get("/api/v1/food/saved");
 
         setReels(response.data.foodItems ?? []);
         setError(null);

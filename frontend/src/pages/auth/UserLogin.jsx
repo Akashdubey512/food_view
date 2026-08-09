@@ -1,6 +1,6 @@
-﻿import AuthPage from './AuthPage'
+import AuthPage from './AuthPage'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../../utils/api'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useState } from 'react'
 
@@ -28,14 +28,11 @@ function UserLogin() {
         return
       }
 
-      const response = await axios.post(
-        'http://localhost:3000/api/v1/auth/login',
+      const response = await api.post(
+        '/api/v1/auth/login',
         {
           email,
           password,
-        },
-        {
-          withCredentials: true,
         }
       )
 

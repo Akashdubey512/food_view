@@ -113,7 +113,7 @@ food_view/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/food_view.git
+git clone https://github.com/Akashdubey512/food_view.git
 cd food_view
 ```
 
@@ -266,4 +266,4 @@ The frontend dev server starts at `http://localhost:5173` and proxies API calls 
 
 ## 📄 License
 
-MIT © 2025 FoodView
+MIT © 2026 FoodView

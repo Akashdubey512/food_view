@@ -1,8 +1,7 @@
 const foodModel = require('../models/food.model');
 const LikeModel = require('../models/like.model');
 const saveFoodModel = require('../models/saveFood.model');
-const uploadOnCloudinary = require('../utils/cloudinary').uploadOnCloudinary;
-const { v4:uuid} = require('uuid');
+const { uploadOnCloudinary, deleteFromCloudinary } = require('../utils/cloudinary');
 const { isValidObjectId } = require('mongoose');
 
 async function createFood(req,res){
@@ -39,14 +38,27 @@ async function createFood(req,res){
         });
 
     }catch(error){
-        console.log(error);
+        console.error(error);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
 async function getFoodItems(req, res) {
     try {
-        const [foodItems, likedFoodIds, savedFoodIds] = await Promise.all([
-            foodModel.find({}).sort({ createdAt: -1 }),
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
+
+        let foodQuery = foodModel.find({}).sort({ createdAt: -1 });
+
+        const isPaginated = !isNaN(page) && !isNaN(limit) && page > 0 && limit > 0;
+
+        if (isPaginated) {
+            foodQuery = foodQuery.skip((page - 1) * limit).limit(limit);
+        }
+
+        const [foodItems, totalCount, likedFoodIds, savedFoodIds] = await Promise.all([
+            foodQuery.lean(),
+            foodModel.countDocuments({}),
             LikeModel.find({ user: req.user._id }).distinct("food"),
             saveFoodModel.find({ user: req.user._id }).distinct("food")
         ]);
@@ -60,18 +72,24 @@ async function getFoodItems(req, res) {
         );
 
         const result = foodItems.map(food => ({
-            ...food.toObject(),
+            ...food,
             isLiked: likedSet.has(food._id.toString()),
             isSaved: savedSet.has(food._id.toString())
         }));
 
         return res.status(200).json({
             message: "Food items retrieved successfully",
-            foodItems: result
+            foodItems: result,
+            pagination: {
+                totalCount,
+                totalPages: isPaginated ? Math.ceil(totalCount / limit) : 1,
+                currentPage: isPaginated ? page : 1,
+                hasNextPage: isPaginated ? page < Math.ceil(totalCount / limit) : false
+            }
         });
 
     } catch (err) {
-        console.log(err);
+        console.error(err);
         return res.status(500).json({
             message: "Internal server error"
         });
@@ -125,7 +143,8 @@ async function likeFood(req,res){
             likedStatus: true
         });
     } catch (error) {
-        return res.status(500).json("Internal server error");
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -143,7 +162,6 @@ try{
         if (!food) {
             return res.status(404).json({ message: "Food not found" });
         }
-
 
     const isSaved = await saveFoodModel.findOne({
         food: foodId,
@@ -190,12 +208,12 @@ try{
         savedStatus: true
     });
 }catch(err){
+    console.error(err);
     return res.status(500).json({
         message: "Internal server error"
     });
 }
 }
-// Get like status for a specific food
 
 async function getLikeStatus(req, res) {
     try {
@@ -224,7 +242,6 @@ async function getLikeStatus(req, res) {
     }
 }
 
-// Get save status for a specific food
 async function getSaveStatus(req, res) {
     try {
         const { foodId } = req.params;
@@ -259,7 +276,8 @@ async function getSavedFood(req, res) {
                 user: req.user._id
             })
             .sort({ createdAt: -1 })
-            .populate("food"),
+            .populate("food")
+            .lean(),
 
             LikeModel.distinct("food", {
                 user: req.user._id
@@ -270,11 +288,13 @@ async function getSavedFood(req, res) {
             likedFoodIds.map(id => id.toString())
         );
 
-        const foodItems = savedFood.map(item => ({
-            ...item.food.toObject(),
-            isSaved: true,
-            isLiked: likedSet.has(item.food._id.toString())
-        }));
+        const foodItems = savedFood
+            .filter(item => item.food)
+            .map(item => ({
+                ...item.food,
+                isSaved: true,
+                isLiked: likedSet.has(item.food._id.toString())
+            }));
 
         return res.status(200).json({
             message: "Saved food retrieved successfully",
@@ -282,7 +302,7 @@ async function getSavedFood(req, res) {
         });
 
     } catch (err) {
-        console.log(err);
+        console.error(err);
 
         return res.status(500).json({
             message: "Internal server error"
@@ -304,15 +324,20 @@ async function editFood(req, res) {
             return res.status(403).json({ message: "Not authorised to edit this food" });
         }
 
+        let oldVideo = null;
+        let oldThumbnail = null;
+
         // Upload new video if provided
         if (req.files?.video?.[0]?.buffer) {
             const videoResult = await uploadOnCloudinary(req.files.video[0].buffer, "video");
+            oldVideo = food.video;
             food.video = videoResult.secure_url;
         }
 
         // Upload new thumbnail if provided
         if (req.files?.thumbnail?.[0]?.buffer) {
             const thumbResult = await uploadOnCloudinary(req.files.thumbnail[0].buffer, "image");
+            oldThumbnail = food.thumbnail;
             food.thumbnail = thumbResult.secure_url;
         }
 
@@ -324,6 +349,12 @@ async function editFood(req, res) {
         if (req.body.isAvailable !== undefined) food.isAvailable = req.body.isAvailable === "false" ? false : true;
 
         await food.save();
+        if (oldVideo) {
+            deleteFromCloudinary(oldVideo, "video").catch(err => console.error("Cloudinary video delete error:", err));
+        }
+        if (oldThumbnail) {
+            deleteFromCloudinary(oldThumbnail, "image").catch(err => console.error("Cloudinary thumbnail delete error:", err));
+        }
 
         return res.status(200).json({
             message: "Food updated successfully",
@@ -350,7 +381,17 @@ async function deleteFood(req, res) {
             return res.status(403).json({ message: "Not authorised to delete this food" });
         }
 
+        const videoToDelete = food.video;
+        const thumbnailToDelete = food.thumbnail;
+
         await food.deleteOne();
+
+        if (videoToDelete) {
+            deleteFromCloudinary(videoToDelete, "video").catch(err => console.error("Cloudinary video delete error:", err));
+        }
+        if (thumbnailToDelete) {
+            deleteFromCloudinary(thumbnailToDelete, "image").catch(err => console.error("Cloudinary thumbnail delete error:", err));
+        }
 
         return res.status(200).json({ message: "Food deleted successfully" });
 

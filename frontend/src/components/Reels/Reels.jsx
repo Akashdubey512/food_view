@@ -2,9 +2,10 @@ import React, { useEffect, useRef } from "react";
 import ReelCard from "./ReelCard";
 import "./Reels.css";
 
-const Reels = ({ reels, onRemoveReel }) => {
+const Reels = ({ reels, onRemoveReel, onLoadMore, loadingMore, hasNextPage }) => {
   const containerRef = useRef(null);
   const videoRefs = useRef([]);
+  const sentinelRef = useRef(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -41,6 +42,24 @@ const Reels = ({ reels, onRemoveReel }) => {
     };
   }, [reels.length]);
 
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const container = containerRef.current;
+    if (!sentinel || !container || !hasNextPage || !onLoadMore) return;
+
+    const sentinelObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          onLoadMore();
+        }
+      },
+      { root: container, rootMargin: "200px", threshold: 0 }
+    );
+
+    sentinelObserver.observe(sentinel);
+    return () => sentinelObserver.disconnect();
+  }, [hasNextPage, onLoadMore, reels.length]);
+
   if (!reels || reels.length === 0) {
     return (
       <div className="reels-empty">
@@ -65,6 +84,16 @@ const Reels = ({ reels, onRemoveReel }) => {
           onRemoveReel={onRemoveReel}
         />
       ))}
+
+      {/* Sentinel: triggers onLoadMore when scrolled into view */}
+      {hasNextPage && <div ref={sentinelRef} style={{ height: 1 }} />}
+
+      {/* Loading indicator while fetching next page */}
+      {loadingMore && (
+        <div className="reels-load-more">
+          <div className="spinner" />
+        </div>
+      )}
     </div>
   );
 };

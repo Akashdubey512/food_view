@@ -49,4 +49,7 @@ const paymentSchema = new mongoose.Schema(
   }
 );
 
+paymentSchema.index({ order: 1 });
+paymentSchema.index({ user: 1 });
+
 module.exports = mongoose.model("Payment", paymentSchema);

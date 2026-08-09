@@ -52,6 +52,9 @@ const foodSchema = new mongoose.Schema({
 
 },{timestamps:true})
 
+foodSchema.index({ foodPartner: 1, createdAt: -1 });
+foodSchema.index({ createdAt: -1 });
+
 const foodModel = mongoose.model("food",foodSchema);
 
 module.exports= foodModel;

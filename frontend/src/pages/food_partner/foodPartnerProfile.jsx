@@ -5,7 +5,7 @@ import api from "../../utils/api";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import { useCart } from "../../context/CartContext";
 import "../../styles/partner-design-system.css";
-import "../../styles/FoodPartnerProfile.css";
+import "../../styles/foodPartnerProfile.css";
 
 const API = "/api/v1";
 

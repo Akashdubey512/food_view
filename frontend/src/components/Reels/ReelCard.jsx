@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import ActionRail from "../ActionRail/ActionRail";
 import { useCart } from "../../context/CartContext";
@@ -29,11 +29,9 @@ const ReelCard = ({ reel, videoRef, onRemoveReel }) => {
     setIsLiking(true);
     setTimeout(() => setShowLikeAnimation(false), 300);
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/v1/food/like",
-        { foodId: reel._id },
-        { withCredentials: true }
-      );
+      const response = await api.post("/api/v1/food/like", {
+        foodId: reel._id,
+      });
       const { food, likedStatus } = response.data;
       setIsLiked(likedStatus);
       setLikeCount(food?.likesCount ?? likeCount);
@@ -54,11 +52,9 @@ const ReelCard = ({ reel, videoRef, onRemoveReel }) => {
     setIsSaving(true);
     setTimeout(() => setShowSaveAnimation(false), 300);
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/v1/food/save",
-        { foodId: reel._id },
-        { withCredentials: true }
-      );
+      const response = await api.post("/api/v1/food/save", {
+        foodId: reel._id,
+      });
       const { food, savedStatus } = response.data;
       setIsSaved(savedStatus);
       setSaveCount(food?.saveCount ?? saveCount);
@@ -109,6 +105,18 @@ const ReelCard = ({ reel, videoRef, onRemoveReel }) => {
       {/* Bottom info card */}
       <div className="reel-card__bottom-content">
         <div className="reel-card__info-card">
+          {/* Cart error toast */}
+          {cartError && (
+            <div className="reel-card__cart-toast" role="alert">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="reel-card__toast-icon">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{cartError}</span>
+            </div>
+          )}
+
           {/* Availability badge */}
           <span className={`reel-card__badge ${reel.isAvailable ? "reel-card__badge--available" : "reel-card__badge--unavailable"}`}>
             {reel.isAvailable ? "● Available" : "● Unavailable"}
@@ -128,10 +136,6 @@ const ReelCard = ({ reel, videoRef, onRemoveReel }) => {
             <span className="reel-card__price">
               {reel.price != null ? `₹${reel.price}` : ""}
             </span>
-
-            {cartError && (
-              <span className="reel-card__cart-error">{cartError}</span>
-            )}
 
             <button
               className={`reel-card__cart-btn ${inCart ? "reel-card__cart-btn--in-cart" : ""} ${!reel.isAvailable ? "reel-card__cart-btn--disabled" : ""}`}

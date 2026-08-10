@@ -5,15 +5,40 @@ const foodController = require('../controllers/food.controller');
 
 const multer = require('multer');
 
-const upload = multer({ storage: multer.memoryStorage() });
+const fileFilter = (req, file, cb) => {
+    const allowedImages = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedVideos = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska'];
 
-// Both video and thumbnail required on create/edit
+    if (file.fieldname === 'thumbnail') {
+        if (allowedImages.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid thumbnail format. Only JPEG, PNG, and WebP are allowed.'), false);
+        }
+    } else if (file.fieldname === 'video') {
+        if (allowedVideos.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid video format. Only MP4, WebM, and MOV are allowed.'), false);
+        }
+    } else {
+        cb(new Error('Unexpected field name.'), false);
+    }
+};
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 50 * 1024 * 1024, 
+    },
+    fileFilter
+});
+
 const uploadFoodFiles = upload.fields([
     { name: 'video',     maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 }
 ]);
 
-// POST /api/v1/food  — create new food item
 router.post(
     '/',
     authMiddleware.authFoodPartnerMiddleware,
@@ -21,35 +46,30 @@ router.post(
     foodController.createFood
 );
 
-// GET /api/v1/food  — feed of all food items (user)
 router.get(
     '/',
     authMiddleware.authUserMiddleware,
     foodController.getFoodItems
 );
 
-// POST /api/v1/food/like
 router.post(
     '/like',
     authMiddleware.authUserMiddleware,
     foodController.likeFood
 );
 
-// POST /api/v1/food/save
 router.post(
     '/save',
     authMiddleware.authUserMiddleware,
     foodController.saveFood
 );
 
-// GET /api/v1/food/saved
 router.get(
     '/saved',
     authMiddleware.authUserMiddleware,
     foodController.getSavedFood
 );
 
-// PATCH /api/v1/food/:id  — edit food (partner only, optional new files)
 router.patch(
     '/:id',
     authMiddleware.authFoodPartnerMiddleware,
@@ -57,21 +77,18 @@ router.patch(
     foodController.editFood
 );
 
-// DELETE /api/v1/food/:id  — delete food (partner only)
 router.delete(
     '/:id',
     authMiddleware.authFoodPartnerMiddleware,
     foodController.deleteFood
 );
 
-// GET /api/v1/food/:foodId/like-status  — check if user liked a food
 router.get(
     '/:foodId/like-status',
     authMiddleware.authUserMiddleware,
     foodController.getLikeStatus
 );
 
-// GET /api/v1/food/:foodId/save-status  — check if user saved a food
 router.get(
     '/:foodId/save-status',
     authMiddleware.authUserMiddleware,

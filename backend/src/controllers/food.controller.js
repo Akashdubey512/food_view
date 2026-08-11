@@ -58,7 +58,7 @@ async function getFoodItems(req, res) {
 
         const [foodItems, totalCount, likedFoodIds, savedFoodIds] = await Promise.all([
             foodQuery.lean(),
-            foodModel.countDocuments({}),
+            foodModel.estimatedDocumentCount(),
             LikeModel.find({ user: req.user._id }).distinct("food"),
             saveFoodModel.find({ user: req.user._id }).distinct("food")
         ]);
@@ -276,7 +276,7 @@ async function getSavedFood(req, res) {
                 user: req.user._id
             })
             .sort({ createdAt: -1 })
-            .populate("food")
+            .populate({ path: "food", select: "name thumbnail price description video isAvailable isVeg likesCount saveCount foodPartner" })
             .lean(),
 
             LikeModel.distinct("food", {

@@ -1,8 +1,6 @@
-const foodPartnerModel = require('../models/foodpartner.model')
-const userModel = require('../models/user.model')
 const jwt = require("jsonwebtoken");
 
-async function authFoodPartnerMiddleware(req, res, next) {
+function authFoodPartnerMiddleware(req, res, next) {
   const token = req.cookies.token;
 
   if (!token) {
@@ -20,17 +18,9 @@ async function authFoodPartnerMiddleware(req, res, next) {
       });
     }
 
-    const foodPartner = await foodPartnerModel.findById(decoded.id);
-
-    if (!foodPartner) {
-      return res.status(401).json({
-        message: 'Invalid token',
-      });
-    }
-
     req.account = {
       role: 'foodPartner',
-      data: foodPartner,
+      data: { _id: decoded.id },
     };
     next();
   } catch (err) {
@@ -40,7 +30,7 @@ async function authFoodPartnerMiddleware(req, res, next) {
   }
 }
 
-async function authUserMiddleware(req, res, next) {
+function authUserMiddleware(req, res, next) {
   const token = req.cookies.token;
 
   if (!token) {
@@ -58,18 +48,10 @@ async function authUserMiddleware(req, res, next) {
       });
     }
 
-    const user = await userModel.findById(decoded.id);
-
-    if (!user) {
-      return res.status(401).json({
-        message: 'Invalid token',
-      });
-    }
-
-    req.user = user;
+    req.user = { _id: decoded.id };
     req.account = {
       role: 'user',
-      data: user,
+      data: { _id: decoded.id },
     };
     next();
   } catch (err) {
@@ -84,7 +66,7 @@ async function authUserMiddleware(req, res, next) {
 //     - For users:       sets req.user AND req.account
 //     - For foodPartners: sets req.account ONLY (req.user is undefined)
 // Controllers must check req.account.role if they need role-specific logic.
-async function authAnyMiddleware(req, res, next) {
+function authAnyMiddleware(req, res, next) {
   const token = req.cookies.token;
 
   if (!token) {
@@ -97,14 +79,10 @@ async function authAnyMiddleware(req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded.role === 'user') {
-      const user = await userModel.findById(decoded.id);
-      if (!user) return res.status(401).json({ message: 'Invalid token' });
-      req.user = user;
-      req.account = { role: 'user', data: user };
+      req.user = { _id: decoded.id };
+      req.account = { role: 'user', data: { _id: decoded.id } };
     } else if (decoded.role === 'foodPartner') {
-      const foodPartner = await foodPartnerModel.findById(decoded.id);
-      if (!foodPartner) return res.status(401).json({ message: 'Invalid token' });
-      req.account = { role: 'foodPartner', data: foodPartner };
+      req.account = { role: 'foodPartner', data: { _id: decoded.id } };
     } else {
       return res.status(403).json({ message: 'Access denied' });
     }
@@ -122,3 +100,4 @@ module.exports = {
   authUserMiddleware,
   authAnyMiddleware,
 }
+

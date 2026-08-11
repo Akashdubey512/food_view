@@ -87,9 +87,9 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-orderSchema.index({ user: 1 });
+orderSchema.index({ user: 1, createdAt: -1 });
 
-orderSchema.index({ foodPartner: 1 });
+orderSchema.index({ foodPartner: 1, createdAt: -1 });
 
 orderSchema.index({ createdAt: -1 });
 

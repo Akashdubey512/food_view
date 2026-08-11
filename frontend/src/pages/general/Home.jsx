@@ -18,7 +18,7 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const isFetchingRef = useRef(false);
 
   useEffect(() => {
@@ -31,6 +31,8 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+
     const fetchReels = async () => {
       try {
         setLoading(true);
@@ -55,7 +57,7 @@ const Home = () => {
       }
     };
     fetchReels();
-  }, [navigate, isAuthenticated]);
+  }, [navigate, authLoading]);
 
   const loadMore = useCallback(async () => {
     if (isFetchingRef.current || !hasNextPage) return;

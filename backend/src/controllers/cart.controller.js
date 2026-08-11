@@ -13,26 +13,26 @@ function calculateCartTotal(items) {
 async function getCart(req,res){
     try {
         const user= req.user._id;
-        const cart = await cartModel.findOne({user});
-            if (!cart) {
-                return res.status(200).json({
-                    message: "Cart is empty",
-                    cart:{
-                        items:[],
-                        totalPrice:0
-                    }
-                });
-            }
-        await cart.populate(
-        {
-            path: "items.food",
-            select: "name thumbnail price"
+        const cart = await cartModel.findOne({ user })
+            .populate({
+                path: "items.food",
+                select: "name thumbnail price"
+            })
+            .lean();
+
+        if (!cart) {
+            return res.status(200).json({
+                message: "Cart is empty",
+                cart: {
+                    items: [],
+                    totalPrice: 0
+                }
+            });
         }
-        );
         return res.status(200).json({
-            message:"Cart fetched successfully",
+            message: "Cart fetched successfully",
             cart
-        })
+        });
 
     } catch (err) {
         console.error(err)

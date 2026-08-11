@@ -48,7 +48,10 @@ async function getFoodItems(req, res) {
         const page = parseInt(req.query.page);
         const limit = parseInt(req.query.limit);
 
-        let foodQuery = foodModel.find({}).sort({ createdAt: -1 });
+        let foodQuery = foodModel.find(
+            {},
+            "name description price video thumbnail isAvailable isVeg prepTime likesCount saveCount foodPartner createdAt"
+        ).sort({ createdAt: -1 });
 
         const isPaginated = !isNaN(page) && !isNaN(limit) && page > 0 && limit > 0;
 

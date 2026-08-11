@@ -114,7 +114,8 @@ try {
             .populate({
                 path: "foodPartner",
                 select: "restaurantName"
-            });
+            })
+            .lean();
 
         if (orders.length === 0) {
             return res.status(200).json({
@@ -155,7 +156,8 @@ async function getOrderById(req,res){
             .populate({
                 path: "foodPartner",
                 select: "restaurantName"
-            });
+            })
+            .lean();
         
         if(!order){
             return res.status(404).json({ message: "Not found" });
@@ -226,7 +228,8 @@ async function getFoodPartnerOrders(req,res){
             },{
                 path:"user",
                 select:"fullName"
-            }]);
+            }])
+            .lean();
 
         if (orders.length === 0) {
             return res.status(200).json({
@@ -322,7 +325,7 @@ async function getFoodPartnerOrdersByID(req,res) {
         }).populate({
             path: "items.food",
             select: "name thumbnail price"
-        });
+        }).lean();
         if (!order) {
             return res.status(404).
             json({ message: "Order not found" });

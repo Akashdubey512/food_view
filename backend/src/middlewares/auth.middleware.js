@@ -31,6 +31,7 @@ function authFoodPartnerMiddleware(req, res, next) {
 }
 
 function authUserMiddleware(req, res, next) {
+  const authStart = process.hrtime.bigint();
   const token = req.cookies.token;
 
   if (!token) {
@@ -53,6 +54,7 @@ function authUserMiddleware(req, res, next) {
       role: 'user',
       data: { _id: decoded.id },
     };
+    req._authTimeMs = Number(process.hrtime.bigint() - authStart) / 1e6;
     next();
   } catch (err) {
     return res.status(401).json({

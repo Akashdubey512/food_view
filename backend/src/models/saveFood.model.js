@@ -23,8 +23,9 @@ SaveFoodSchema.index(
     {
         unique:true
     }
-    
-)
+);
+
+SaveFoodSchema.index({ user: 1, createdAt: -1 });
 
 const saveFoodModel = mongoose.model('saveFood', SaveFoodSchema);
 

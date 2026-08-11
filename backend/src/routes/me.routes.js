@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.role === 'user') {
-      const user = await userModel.findById(decoded.id).select('-password');
+      const user = await userModel.findById(decoded.id).select('fullName email').lean();
       if (!user) {
         return res.status(200).json({ account: null });
       }
@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
     }
 
     if (decoded.role === 'foodPartner') {
-      const foodPartner = await foodPartnerModel.findById(decoded.id).select('-password');
+      const foodPartner = await foodPartnerModel.findById(decoded.id).select('fullName email bussinessName phoneNumber address').lean();
       if (!foodPartner) {
         return res.status(200).json({ account: null });
       }

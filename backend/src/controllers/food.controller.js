@@ -107,21 +107,27 @@ async function likeFood(req,res){
                 message: "Invalid food id"
             });
         }
-        const food = await foodModel.findById(foodId);
+
+        const [food, existingLike] = await Promise.all([
+            foodModel.findById(foodId),
+            LikeModel.findOne({
+                user: req.user._id,
+                food: foodId
+            })
+        ])
         if (!food) {
             return res.status(404).json({ message: "Food not found" });
         }
-
-        const existingLike = await LikeModel.findOne({
-            user: req.user._id,
-            food: foodId
-        });
         if (existingLike) {
-            await existingLike.deleteOne();
 
-            const updatedFood = await foodModel.findByIdAndUpdate(
-                foodId,{ $inc:{ likesCount: -1 } },{ returnDocument: 'after' }
-            );
+            const [updatedFood] = await Promise.all([
+                foodModel.findByIdAndUpdate(
+                    foodId,
+                    { $inc: { likesCount: -1 } },
+                    { returnDocument: 'after' }
+                ),
+                existingLike.deleteOne()
+            ]);
 
             return res.status(200).json({
                 message: "Food unliked successfully",
@@ -130,16 +136,18 @@ async function likeFood(req,res){
             });
         }
 
-        await LikeModel.create({
-            user: req.user._id,
-            food: foodId
-        });
+        const [updatedFood] = await Promise.all([
+            foodModel.findByIdAndUpdate(
+                foodId,
+                { $inc: { likesCount: 1 } },
+                { returnDocument: 'after' }
+            ),
+            LikeModel.create({
+                user: req.user._id,
+                food: foodId
+            })
+        ]);
 
-        const updatedFood = await foodModel.findByIdAndUpdate(
-            foodId,
-            { $inc:{ likesCount: 1 } },
-            { returnDocument: 'after' }
-        )
         return res.status(200).json({
             message: "Food liked successfully",
             food: updatedFood,
@@ -160,29 +168,29 @@ try{
             message: "Invalid food"
         });
     }
-    
-    const food = await foodModel.findById(foodId);
-        if (!food) {
-            return res.status(404).json({ message: "Food not found" });
-        }
 
-    const isSaved = await saveFoodModel.findOne({
-        food: foodId,
-        user: req.user._id
-    });
+    const [food, isSaved] = await Promise.all([
+        foodModel.findById(foodId),
+        saveFoodModel.findOne({
+            user: req.user._id,
+            food: foodId
+        })
+    ]);
+
+    if (!food) {
+        return res.status(404).json({ message: "Food not found" });
+    }
+
     if(isSaved){
-        await isSaved.deleteOne();
-        const updatedFood = await foodModel.findByIdAndUpdate(
-            foodId,
-            {
-                $inc:{
-                    saveCount: -1
-                }
-            },
-            {
-                returnDocument: 'after'
-            }
-        )
+        const [updatedFood] = await Promise.all([
+            foodModel.findByIdAndUpdate(
+                foodId,
+                { $inc: { saveCount: -1 } },
+                { returnDocument: 'after' }
+            ),
+                isSaved.deleteOne()
+        ]);
+
         return res.status(200).json({
             message: "Food removed from saves",
             food: updatedFood,
@@ -190,21 +198,18 @@ try{
         });
     }
 
-    await saveFoodModel.create({
-        user: req.user._id,
-        food: foodId
-    });
-    const updatedFood = await foodModel.findByIdAndUpdate(
-        foodId,
-        {
-            $inc: {
-                saveCount: 1
-            }
-        },
-        {
-            returnDocument: 'after'
-        }
-    )
+   const [updatedFood] = await Promise.all([
+            foodModel.findByIdAndUpdate(
+                foodId,
+                { $inc: { saveCount: 1 } },
+                { returnDocument: 'after' }
+            ),
+            saveFoodModel.create({
+                user: req.user._id,
+                food: foodId
+            })
+        ]);
+
     return res.status(200).json({
         message: "Food saved successfully",
         food: updatedFood,

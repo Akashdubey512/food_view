@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
-function ProtectedRoute({ children, role = 'user' }) {
+function PublicRoute({ children }) {
   const { account, loading } = useAuth()
 
   if (loading) {
@@ -12,15 +12,11 @@ function ProtectedRoute({ children, role = 'user' }) {
     )
   }
 
-  if (!account) {
-    return <Navigate to={role === 'foodPartner' ? '/foodpartner/login' : '/user/login'} replace />
-  }
-
-  if (role && account.role !== role) {
+  if (account) {
     return <Navigate to={account.role === 'foodPartner' ? '/foodpartner' : '/'} replace />
   }
 
   return children
 }
 
-export default ProtectedRoute
+export default PublicRoute

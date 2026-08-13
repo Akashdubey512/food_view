@@ -11,6 +11,7 @@ import CreateFood from '../pages/food_partner/createFood'
 import FoodPartnerProfile from '../pages/food_partner/foodPartnerProfile'
 import ErrorPage from '../pages/general/Error'
 import ProtectedRoute from '../components/ProtectedRoute'
+import PublicRoute from '../components/PublicRoute'
 import Orderspage from '../pages/food_partner/index'
 
 import PartnerDashboard from '../pages/food_partner/PartnerDashboard'
@@ -23,16 +24,75 @@ import PartnerSettings from '../pages/food_partner/PartnerSettings'
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/user/register" element={<UserRegister />} />
-      <Route path="/user/login" element={<UserLogin />} />
-      <Route path="/foodpartner/register" element={<FoodPartnerRegister />} />
-      <Route path="/foodpartner/login" element={<FoodPartnerLogin />} />
-      <Route path="/" element={<Home />} />
-      <Route path="/saved" element={<Saved />} />
-      <Route path="/cart" element={<Cart />} />
-      <Route path="/orders" element={<Orders />} />
+      {/* Auth / Guest Routes */}
+      <Route
+        path="/user/register"
+        element={
+          <PublicRoute>
+            <UserRegister />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/user/login"
+        element={
+          <PublicRoute>
+            <UserLogin />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/foodpartner/register"
+        element={
+          <PublicRoute>
+            <FoodPartnerRegister />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/foodpartner/login"
+        element={
+          <PublicRoute>
+            <FoodPartnerLogin />
+          </PublicRoute>
+        }
+      />
 
-      {/* Food Partner Routes */}
+      {/* User / Customer Protected Routes */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute role="user">
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/saved"
+        element={
+          <ProtectedRoute role="user">
+            <Saved />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute role="user">
+            <Cart />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute role="user">
+            <Orders />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Food Partner Protected Routes */}
       <Route
         path="/foodpartner"
         element={
@@ -114,26 +174,38 @@ const AppRoutes = () => {
         }
       />
 
-      <Route path="/foodpartner/:id" element={<FoodPartnerProfile />} />
+      {/* Food Partner Store Profile viewed by Customer */}
+      <Route
+        path="/foodpartner/:id"
+        element={
+          <ProtectedRoute role="user">
+            <FoodPartnerProfile />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/error"
         element={
-          <ErrorPage
-            title="Error"
-            subtitle="Something went wrong"
-            message="An unexpected error occurred."
-          />
+          <ProtectedRoute role="user">
+            <ErrorPage
+              title="Error"
+              subtitle="Something went wrong"
+              message="An unexpected error occurred."
+            />
+          </ProtectedRoute>
         }
       />
       <Route
         path="*"
         element={
-          <ErrorPage
-            title="404"
-            subtitle="Page Not Found"
-            message="The page you're looking for doesn't exist or may have been moved."
-          />
+          <ProtectedRoute role="user">
+            <ErrorPage
+              title="404"
+              subtitle="Page Not Found"
+              message="The page you're looking for doesn't exist or may have been moved."
+            />
+          </ProtectedRoute>
         }
       />
     </Routes>

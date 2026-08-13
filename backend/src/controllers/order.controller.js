@@ -21,7 +21,13 @@ try {
             message: "Invalid payment method"
         });
     }
-    const cart =await cartModel.findOne({user});
+     const [cart, foods] = await Promise.all([
+            cartModel.findOne({ user }),
+            foodModel.find(
+                { _id: { $in: [] } },
+                "name isAvailable price"
+            ).lean()
+        ]);
     if(!cart||cart.items.length==0){
         return res.status(400).json({
             message:"Cart is empty"
@@ -29,20 +35,18 @@ try {
     }
     const foodIds = cart.items.map(item => item.food);
 
-const foods = await foodModel.find(
-    {
-    _id: { $in: foodIds }
-    },
-    "name isAvailable price"
-);
+     const foodItems = await foodModel.find(
+            { _id: { $in: foodIds } },
+            "name isAvailable price"
+        ).lean();
 
-if (foods.length !== foodIds.length) {
-    return res.status(400).json({
-        message: "Some items in your cart are no longer available."
-    });
-}
+        if (foodItems.length !== foodIds.length) {
+            return res.status(400).json({
+                message: "Some items in your cart are no longer available."
+            });
+        }
 
-const unavailableFood = foods.find(food => !food.isAvailable);
+const unavailableFood = foodItems.find(food => !food.isAvailable);
 
 if (unavailableFood) {
     return res.status(400).json({
@@ -51,7 +55,7 @@ if (unavailableFood) {
 }
 const foodPriceMap = new Map();
 
-foods.forEach(food => {
+foodItems.forEach(food => {
     foodPriceMap.set(food._id.toString(), food.price);
 });
 
@@ -67,8 +71,10 @@ const totalAmount = cart.items.reduce((sum, item) => {
         items:cart.items,
         totalAmount,
         deliveryAddress,
-        paymentMethod
+        paymentMethod,
+        orderStatus: "Pending"
     })
+
     if(paymentMethod==="COD"){
         cart.items = [];
         cart.totalPrice = 0;
@@ -85,7 +91,7 @@ const totalAmount = cart.items.reduce((sum, item) => {
         },
         {
             path: "foodPartner",
-            select: "restaurantName"
+            select: "bussinessName"
         }
     ]);
     return res.status(201).json({
@@ -113,7 +119,7 @@ try {
             })
             .populate({
                 path: "foodPartner",
-                select: "restaurantName"
+                select: "bussinessName"
             })
             .lean();
 
@@ -155,7 +161,7 @@ async function getOrderById(req,res){
             })
             .populate({
                 path: "foodPartner",
-                select: "restaurantName"
+                select: "bussinessName"
             })
             .lean();
         

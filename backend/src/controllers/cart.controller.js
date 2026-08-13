@@ -55,12 +55,20 @@ async function addToCart(req,res){
                 message: "Quantity must be at least 1"
             });
         }
-        const foodDoc = await foodModel.findById(food);
+
+        let [foodDoc,cart] = await Promise.all([
+            foodModel.findById(food),
+            cartModel.findOne({user})
+        ]);
+
         if(!foodDoc){
             return res.status(404).json({error:"food not found"})
         }
-        let cart = await cartModel.findOne({user});
-
+        if (!foodDoc.isAvailable) {
+            return res.status(400).json({
+                message: "This food is currently unavailable"
+            });
+        }
         if(!cart){
             cart = new cartModel({
                 user,
@@ -150,7 +158,7 @@ async function removeFromCart(req,res){
             message: "Item removed from cart",
             cart
         });
-
+    
     } catch (err) {
         console.error(err);
 

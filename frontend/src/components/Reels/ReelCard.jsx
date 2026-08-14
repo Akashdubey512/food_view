@@ -25,16 +25,23 @@ const ReelCard = ({ reel, videoRef, onRemoveReel }) => {
     if (isLiking) return;
     const previousLiked = isLiked;
     const previousCount = likeCount;
+
+    const newLiked = !previousLiked;
+    const newCount = newLiked ? previousCount + 1 : Math.max(0, previousCount - 1);
+
+    setIsLiked(newLiked);
+    setLikeCount(newCount);
     setShowLikeAnimation(true);
     setIsLiking(true);
     setTimeout(() => setShowLikeAnimation(false), 300);
+
     try {
       const response = await api.post("/api/v1/food/like", {
         foodId: reel._id,
       });
       const { food, likedStatus } = response.data;
-      setIsLiked(likedStatus);
-      setLikeCount(food?.likesCount ?? likeCount);
+      if (likedStatus !== undefined) setIsLiked(likedStatus);
+      if (food?.likesCount !== undefined) setLikeCount(food.likesCount);
     } catch (error) {
       console.error("Error toggling like:", error);
       setIsLiked(previousLiked);
@@ -48,16 +55,23 @@ const ReelCard = ({ reel, videoRef, onRemoveReel }) => {
     if (isSaving) return;
     const previousSaved = isSaved;
     const previousCount = saveCount;
+
+    const newSaved = !previousSaved;
+    const newCount = newSaved ? previousCount + 1 : Math.max(0, previousCount - 1);
+
+    setIsSaved(newSaved);
+    setSaveCount(newCount);
     setShowSaveAnimation(true);
     setIsSaving(true);
     setTimeout(() => setShowSaveAnimation(false), 300);
+
     try {
       const response = await api.post("/api/v1/food/save", {
         foodId: reel._id,
       });
       const { food, savedStatus } = response.data;
-      setIsSaved(savedStatus);
-      setSaveCount(food?.saveCount ?? saveCount);
+      if (savedStatus !== undefined) setIsSaved(savedStatus);
+      if (food?.saveCount !== undefined) setSaveCount(food.saveCount);
       if (!savedStatus && onRemoveReel) {
         setTimeout(() => onRemoveReel(reel._id), 300);
       }

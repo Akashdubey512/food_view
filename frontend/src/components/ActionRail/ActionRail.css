@@ -75,11 +75,13 @@
 /* ====== LIKE - ACTIVE ====== */
 .action-button--liked {
   background: #5FA86C;
+  border-color: #5FA86C;
 }
 
 .action-button--liked:hover {
-  background: rgba(255, 45, 85, 0.95);
-  transform: scale(1.1);
+  background: #4F8E5B;
+  border-color: #4F8E5B;
+  transform: scale(1.08);
 }
 
 /* ====== SAVE - ACTIVE ====== */
@@ -87,12 +89,13 @@
   background: rgba(255, 214, 10, 0.85);
   border-color: rgba(255, 214, 10, 0.9);
   color: #1a1200;
-  box-shadow: 0 0 0 3px rgba(255, 214, 10, 0.22), 0 4px 20px rgba(255, 214, 10, 0.35);
+  box-shadow: none;
 }
 
 .action-button--saved:hover {
   background: rgba(255, 214, 10, 0.96);
-  transform: scale(1.1);
+  transform: scale(1.08);
+  box-shadow: none;
 }
 
 .action-button--saved .action-icon {

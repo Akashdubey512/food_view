@@ -1,4 +1,4 @@
-﻿import { useId, useState } from 'react'
+import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 function BrandMark() {
@@ -175,6 +175,11 @@ function AuthSwitch({ label, text, to }) {
 function AuthFormCard({ title, subtitle, actionLabel, children, switchLabel, switchText, switchTo, onSubmit, error, isLoading }) {
   return (
     <div className="auth-form-card">
+      <div className="auth-demo-banner" role="status">
+        <span className="auth-demo-banner__icon">⚠️</span>
+        <span className="auth-demo-banner__text">Demo only — no real food orders or deliveries will be made.</span>
+      </div>
+
       <div className="auth-heading">
         <p className="auth-heading__eyebrow">Quick access</p>
         <h1 id="auth-title">{title}</h1>

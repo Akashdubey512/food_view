@@ -160,6 +160,7 @@
 @media (max-width: 600px) {
   .action-rail {
     right: 8px;
+    bottom: calc(var(--bottom-nav-overlay-offset) + 6px);
     gap: 4px;
   }
 
@@ -177,6 +178,7 @@
 @media (max-width: 400px) {
   .action-rail {
     right: 6px;
+    bottom: calc(var(--bottom-nav-overlay-offset) + 4px);
   }
 
   .action-button {

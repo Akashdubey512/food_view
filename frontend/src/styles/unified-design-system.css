@@ -110,7 +110,7 @@
   --bottom-nav-height: 62px;
   --nav-height: var(--bottom-nav-height);
   --header-overlay-offset: calc(env(safe-area-inset-top, 0px) + var(--space-4) + var(--header-height));
-  --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + 18px + var(--bottom-nav-height));
+  --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + var(--bottom-nav-height) + 24px);
 }
 
 @media (max-width: 600px) {
@@ -118,7 +118,7 @@
     --header-height: 40px;
     --bottom-nav-height: 58px;
     --header-overlay-offset: calc(env(safe-area-inset-top, 0px) + var(--space-4) + var(--header-height));
-    --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + 16px + var(--bottom-nav-height));
+    --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + var(--bottom-nav-height) + 28px);
   }
 }
 
@@ -127,7 +127,7 @@
     --header-height: 40px;
     --bottom-nav-height: 56px;
     --header-overlay-offset: calc(env(safe-area-inset-top, 0px) + var(--space-4) + var(--header-height));
-    --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + 14px + var(--bottom-nav-height));
+    --bottom-nav-overlay-offset: calc(env(safe-area-inset-bottom, 0px) + var(--bottom-nav-height) + 26px);
   }
 }
 

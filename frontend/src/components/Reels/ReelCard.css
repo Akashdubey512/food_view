@@ -3,12 +3,14 @@
 .reel-card {
   position: relative;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   overflow: hidden;
   background: var(--color-bg);
   flex-shrink: 0;
+  will-change: transform;
 }
 
 /* ====== VIDEO ====== */
@@ -247,13 +249,14 @@
 @media (max-width: 600px) {
   .reel-card__bottom-content {
     right: 64px;
-    bottom: calc(var(--bottom-nav-overlay-offset) + 10px);
+    bottom: calc(var(--bottom-nav-overlay-offset) + 6px);
     padding: 0 12px;
   }
 
   .reel-card__info-card {
     padding: 12px 14px;
     gap: 7px;
+    max-height: 40vh;
   }
 
   .reel-card__title {
@@ -271,5 +274,18 @@
   .reel-card__cart-btn {
     font-size: 12px;
     padding: 8px 14px;
+  }
+}
+
+@media (max-width: 400px) {
+  .reel-card__bottom-content {
+    right: 60px;
+    bottom: calc(var(--bottom-nav-overlay-offset) + 4px);
+    padding: 0 8px;
+  }
+
+  .reel-card__info-card {
+    padding: 10px 12px;
+    gap: 6px;
   }
 }
